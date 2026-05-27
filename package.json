@@ -1,0 +1,85 @@
+{
+  "name": "zalo-agent-web",
+  "version": "1.0.0",
+  "description": "HC Zalo Agent desktop app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tranhung91nd/Omni-Ai-Marketing.git"
+  },
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "node server.js",
+    "desktop": "electron .",
+    "prebuild:win": "node scripts/preflight-windows.js",
+    "build:win": "npm run prebuild:win && electron-builder --win nsis --x64",
+    "license-server": "node license-server/server.js",
+    "license:create": "node license-server/create-license.js",
+    "check": "node --check server.js && node --check db.js && node --check zalo-manager.js && node --check desktop/config.js && node --check desktop/license.js && node --check desktop/update-client.js && node --check desktop/main.js && node --check license-server/server.js && node --check license-server/create-license.js && node --check scripts/preflight-windows.js && node --check public/chat.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "build": {
+    "appId": "vn.hcagency.zaloagent",
+    "productName": "HC Zalo Agent",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "server.js",
+      "db.js",
+      "zalo-manager.js",
+      "desktop/**/*",
+      "public/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "bin",
+        "to": "bin",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*",
+      "node_modules/node-pty/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "HC-Zalo-Agent-${version}-Setup.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "https://ai.hc-agency.online/downloads/zalo-agent/"
+      }
+    ]
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.10.0",
+    "electron-updater": "^6.8.3",
+    "express": "^5.2.1",
+    "image-size": "^2.0.2",
+    "multer": "^2.1.1",
+    "node-pty": "^1.1.0",
+    "ws": "^8.20.1",
+    "zca-js": "^2.1.2"
+  },
+  "devDependencies": {
+    "electron": "^42.3.0",
+    "electron-builder": "^26.8.1"
+  }
+}

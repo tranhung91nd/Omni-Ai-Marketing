@@ -1,0 +1,1673 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>OMNI AI MARKETING</title>
+<link rel="stylesheet" href="/chat.css" />
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="rightbar-closed">
+
+<aside id="navrail">
+  <div class="nav-brand">
+    <div class="brand-logo">O</div>
+    <div class="brand-name">OMNI AI MARKETING</div>
+  </div>
+
+  <nav class="nav-scroll">
+    <div class="nav-section">
+      <div class="nav-section-label">Tổng quan</div>
+      <div class="nav-group">
+        <div class="nav-head" data-grp="acc">
+          <i data-lucide="user-round"></i><span class="nav-lb">Tài khoản zalo</span><i data-lucide="chevron-down" class="nav-ar"></i>
+        </div>
+        <div class="nav-sub" data-sub="acc">
+          <a class="nav-item" href="/zalo-accounts" data-action="acc-list"><i data-lucide="list"></i>Danh sách tài khoản</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-head" data-grp="chat">
+          <i data-lucide="message-square"></i><span class="nav-lb">Chat</span><i data-lucide="chevron-down" class="nav-ar"></i>
+        </div>
+        <div class="nav-sub" data-sub="chat">
+          <a class="nav-item active" href="/chat" data-action="chat-overview"><i data-lucide="message-circle"></i>Zalo</a>
+          <a class="nav-item" href="/fanpage" data-action="fanpage"><i data-lucide="facebook"></i>Fanpage</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Marketing</div>
+      <div class="nav-group">
+        <div class="nav-head" data-grp="msg">
+          <i data-lucide="send"></i><span class="nav-lb">Nhắn tin</span><i data-lucide="chevron-down" class="nav-ar"></i>
+        </div>
+        <div class="nav-sub" data-sub="msg">
+          <a class="nav-item" href="/nhan-tin/sdt" data-action="msg-phone"><i data-lucide="phone"></i>Theo số điện thoại</a>
+          <a class="nav-item" href="/nhan-tin/ban-be" data-action="msg-friends"><i data-lucide="users"></i>Bạn bè và nhãn dán</a>
+          <a class="nav-item" href="/nhan-tin/tv-nhom" data-action="msg-group-mem"><i data-lucide="user-round"></i>Thành viên nhóm và nhãn dán</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-head" data-grp="friend">
+          <i data-lucide="user-plus"></i><span class="nav-lb">Kết bạn</span><i data-lucide="chevron-down" class="nav-ar"></i>
+        </div>
+        <div class="nav-sub" data-sub="friend">
+          <a class="nav-item" href="/ket-ban/sdt" data-action="friend-phone"><i data-lucide="phone"></i>Theo số điện thoại</a>
+          <a class="nav-item" href="/ket-ban/tv-nhom" data-action="friend-group"><i data-lucide="users"></i>Theo thành viên nhóm</a>
+          <a class="nav-item" href="/ket-ban/tv-nhom-khac" data-action="friend-group-other"><i data-lucide="link"></i>Theo thành viên ở nhóm khác</a>
+          <a class="nav-item" href="/ket-ban/tu-file-backup" data-action="friend-backup"><i data-lucide="file-up"></i>Từ file backup</a>
+          <a class="nav-item" href="/ket-ban/thu-hoi" data-action="friend-undo"><i data-lucide="undo-2"></i>Thu hồi kết bạn</a>
+          <a class="nav-item" href="/ket-ban/xoa-ban" data-action="friend-remove"><i data-lucide="user-x"></i>Xóa bạn</a>
+        </div>
+      </div>
+
+      <div class="nav-group">
+        <div class="nav-head" data-grp="group">
+          <i data-lucide="users-round"></i><span class="nav-lb">Nhóm</span><i data-lucide="chevron-down" class="nav-ar"></i>
+        </div>
+        <div class="nav-sub" data-sub="group">
+          <a class="nav-item" href="/nhom/tham-gia" data-action="grp-join"><i data-lucide="log-in"></i>Tham gia nhóm</a>
+          <a class="nav-item" href="/nhom/nhan-tin" data-action="grp-msg"><i data-lucide="message-square"></i>Nhắn tin nhóm</a>
+          <a class="nav-item" href="/nhom/moi-sdt" data-action="grp-invite-phone"><i data-lucide="phone-incoming"></i>Mời qua số điện thoại</a>
+          <a class="nav-item" href="/nhom/moi-ban-be" data-action="grp-invite-friend"><i data-lucide="user-plus"></i>Mời bạn bè vào nhóm</a>
+          <a class="nav-item" href="/nhom/moi-tv-khac" data-action="grp-invite-other"><i data-lucide="users"></i>Mời thành viên từ nhóm khác</a>
+          <a class="nav-item" href="/nhom/roi-nhom" data-action="grp-leave"><i data-lucide="log-out"></i>Rời nhóm</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-label">Tiện ích</div>
+      <div class="nav-group">
+        <a class="nav-head" href="/loi-moi-ket-ban" data-action="invites" style="text-decoration:none;color:inherit;display:flex">
+          <i data-lucide="inbox"></i><span class="nav-lb">Lời mời kết bạn</span>
+        </a>
+      </div>
+      <div class="nav-group">
+        <a class="nav-head" href="/tu-dong-tra-loi" data-action="autoreply-mgmt" style="text-decoration:none;color:inherit;display:flex">
+          <i data-lucide="bot-message-square"></i><span class="nav-lb">Tự động trả lời</span>
+        </a>
+      </div>
+      <div class="nav-group">
+        <a class="nav-head" href="/backup-ban-be" data-action="backup" style="text-decoration:none;color:inherit;display:flex">
+          <i data-lucide="cloud-download"></i><span class="nav-lb">Backup bạn bè</span>
+        </a>
+      </div>
+    </div>
+    <div class="nav-section nav-bottom">
+      <div class="nav-group">
+        <a class="nav-head" href="/cai-dat" data-action="settings" style="text-decoration:none;color:inherit;display:flex">
+          <i data-lucide="settings"></i><span class="nav-lb">Cài đặt</span>
+        </a>
+      </div>
+    </div>
+  </nav>
+</aside>
+
+<header id="topbar">
+  <div class="tb-left">
+    <button class="tb-btn" id="sidebarToggleBtn" title="Thu gọn / mở rộng sidebar">
+      <i data-lucide="panel-left"></i>
+    </button>
+    <span class="tb-title" id="topbarTitle">Chat · Tổng quan</span>
+  </div>
+  <div class="tb-right">
+    <button class="tb-btn" id="syncThreadsBtn" title="Cập nhật danh sách bạn bè và nhóm từ Zalo">
+      <i data-lucide="refresh-cw"></i><span>Đồng bộ</span>
+    </button>
+    <button class="tb-btn" id="newAccBtn" title="Thêm tài khoản Zalo">
+      <i data-lucide="plus"></i><span>Thêm tài khoản</span>
+    </button>
+    <div class="tb-divider"></div>
+    <button class="tb-btn" id="themeToggleBtn" title="Chuyển light/dark">
+      <i data-lucide="sun"></i>
+    </button>
+    <a class="tb-btn" href="/" title="Trang lọc số">
+      <i data-lucide="home"></i>
+    </a>
+  </div>
+</header>
+
+<aside id="leftbar">
+  <div class="acc-box">
+    <div class="acc-current" id="accCurrent">
+      <div class="avatar" id="accAvatar">?</div>
+      <div class="acc-info">
+        <div class="acc-name" id="accName">Chưa đăng nhập</div>
+        <div class="acc-id" id="accId">—</div>
+      </div>
+      <button class="icon-btn" id="accSwitchBtn" title="Đổi tài khoản"><i data-lucide="chevrons-up-down"></i></button>
+    </div>
+    <div class="acc-dropdown hidden" id="accDropdown">
+      <div id="accList"></div>
+      <button class="btn-primary block" id="addAccBtn">+ Thêm tài khoản</button>
+    </div>
+  </div>
+
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Tìm kiếm hội thoại / tin nhắn" />
+  </div>
+
+  <div class="leftnav" style="position:relative">
+    <button class="filter-btn" id="filterBtn">
+      <i data-lucide="sliders-horizontal"></i>
+      <span id="filterBtnLabel">Tất cả</span>
+      <span id="filterBtnCount" class="filter-count hidden">0</span>
+      <i data-lucide="chevron-down" class="filter-caret"></i>
+    </button>
+    <div class="filter-quick-labels hidden" id="filterQuickLabels" aria-label="Lọc nhanh theo nhãn"></div>
+    <div class="filter-popup hidden" id="filterPopup">
+      <div class="filter-section">
+        <div class="filter-section-label">Theo trạng thái</div>
+        <label class="filter-radio"><input type="radio" name="thFilterStatus" value="all" checked><span>Tất cả</span><span class="filter-cnt" data-cnt="all"></span></label>
+        <label class="filter-radio"><input type="radio" name="thFilterStatus" value="unread"><span>Chưa đọc</span><span class="filter-cnt" data-cnt="unread"></span></label>
+        <label class="filter-radio"><input type="radio" name="thFilterStatus" value="user"><span>Chỉ bạn bè</span><span class="filter-cnt" data-cnt="user"></span></label>
+        <label class="filter-radio"><input type="radio" name="thFilterStatus" value="group"><span>Chỉ nhóm</span><span class="filter-cnt" data-cnt="group"></span></label>
+      </div>
+      <div class="filter-section">
+        <div class="filter-section-label">Theo nhãn</div>
+        <div id="filterLabelsList" class="filter-labels">
+          <div class="hint" style="padding:6px 4px">Đang tải...</div>
+        </div>
+      </div>
+      <div class="filter-foot">
+        <button id="manageLabelsBtn"><i data-lucide="settings-2"></i> Quản lý nhãn</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="thread-list" id="threadList">
+    <div class="empty">Chưa đăng nhập tài khoản Zalo. Bấm "Thêm tài khoản" ở trên cùng để bắt đầu.</div>
+  </div>
+
+  <div class="leftfoot">
+    <button class="footbtn" data-modal="bulk" title="Gửi hàng loạt">📨 Bulk</button>
+    <button class="footbtn" data-modal="broadcast" title="Broadcast 1000+ người">📡 Broadcast</button>
+    <button class="footbtn" data-modal="schedule" title="Hẹn giờ gửi">⏰ Schedule</button>
+    <button class="footbtn" data-modal="template" title="Template tin nhắn">📋 Template</button>
+    <button class="footbtn" data-modal="autoreply" title="Trả lời tự động">🤖 Auto</button>
+    <a class="footbtn" href="/" title="Về dashboard chính">← Home</a>
+  </div>
+</aside>
+
+<section id="pageFanpage" class="page-view hidden">
+  <div class="fp-layout">
+    <!-- CỘT 1 (gộp): Fanpage selector + Conversations -->
+    <aside class="fp-convos">
+      <!-- Fanpage selector ở đầu -->
+      <div class="fp-page-selector">
+        <button class="fp-page-current" id="fpPageCurrentBtn">
+          <div class="avatar sm" id="fpCurrentAvatar"></div>
+          <div style="flex:1;min-width:0">
+            <div class="fp-current-name" id="fpCurrentName">Chọn Fanpage</div>
+            <div class="fp-current-meta" id="fpCurrentMeta">— chưa có Fanpage nào</div>
+          </div>
+          <i data-lucide="chevron-down" style="width:14px;height:14px"></i>
+        </button>
+        <div id="fpPageDropdown" class="fp-page-dropdown hidden">
+          <div id="fpPageList"></div>
+          <div class="fp-page-dropdown-foot">
+            <button class="btn-ghost" id="fpAddPageBtn" style="font-size:12px"><i data-lucide="plus"></i> Kết nối Fanpage mới</button>
+            <button class="btn-ghost" id="fpSyncAllBtn" style="font-size:12px"><i data-lucide="cloud-download"></i> Đồng bộ hội thoại cũ</button>
+            <button class="btn-ghost" id="fpAutoClassifyBtn" style="font-size:12px"><i data-lucide="sparkles"></i> AI tự phân loại nhãn</button>
+          </div>
+          <div id="fpSyncStatus" style="font-size:11px;color:var(--muted-foreground);padding:4px 10px;text-align:center"></div>
+        </div>
+      </div>
+
+      <div class="fp-convos-head">
+        <!-- Filter theo nhãn -->
+        <div id="fpLabelFilters" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px"></div>
+        <input type="text" id="fpSearchConvo" placeholder="🔍  Tìm theo tên khách / nội dung..." />
+      </div>
+      <div id="fpConvoList" class="fp-convo-list">
+        <div class="empty" style="padding:40px;font-size:12px;text-align:center">Chọn Fanpage ở trên để xem hội thoại.</div>
+      </div>
+    </aside>
+
+    <!-- CỘT 2: Khung chat — dùng cùng style Zalo -->
+    <main class="fp-chat" id="fpChatMainCol">
+      <!-- Placeholder khi chưa chọn convo -->
+      <div id="fpChatPlaceholder" class="placeholder">
+        <div class="ph-icon"><i data-lucide="messages-square" style="width:56px;height:56px"></i></div>
+        <div class="ph-title">Fanpage Inbox</div>
+        <div class="ph-sub">Chọn 1 hội thoại bên trái để bắt đầu chat. Mỗi tin từ khách trên Fanpage sẽ tự đẩy về đây realtime qua webhook.</div>
+      </div>
+
+      <!-- Header chat (cùng style Zalo #chatHeader) -->
+      <header id="fpChatHeader" class="hidden" style="display:flex;align-items:center;gap:12px;padding:10px 18px;border-bottom:1px solid var(--border);background:var(--card)">
+        <div class="avatar lg" id="fpHeadAvatar"></div>
+        <div class="chat-meta">
+          <div class="chat-title" id="fpHeadName">—</div>
+          <div class="chat-sub">
+            <span id="fpHeadStatus">● Online</span> · <span id="fpHeadPage">—</span>
+          </div>
+        </div>
+        <div class="chat-actions">
+          <button class="icon-btn" id="fpAiBtn" title="AI gợi ý reply"><i data-lucide="sparkles"></i></button>
+          <button class="icon-btn" id="fpSearchInChatBtn" title="Tìm trong hội thoại"><i data-lucide="search"></i></button>
+          <button class="icon-btn" id="fpLabelBtn" title="Gắn nhãn"><i data-lucide="tag"></i></button>
+          <button class="icon-btn" id="fpMarkResolvedBtn" title="Đánh dấu giải quyết"><i data-lucide="check-circle"></i></button>
+          <button class="icon-btn" id="fpAssignBtn" title="Giao agent"><i data-lucide="user-plus"></i></button>
+          <button class="icon-btn" id="fpToggleInfoBtn" title="Thông tin khách"><i data-lucide="info"></i></button>
+        </div>
+      </header>
+
+      <!-- Body messages -->
+      <div id="fpChatBody" class="hidden" style="flex:1;overflow-y:auto;padding:18px 28px">
+        <div id="fpMessages" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+
+      <!-- Footer composer — IDENTICAL với Zalo #chatFooter -->
+      <footer id="fpChatFooter" class="hidden">
+        <!-- Reply preview bar (giống Zalo) -->
+        <div id="fpReplyPreview" class="hidden">
+          <i data-lucide="reply" style="color:var(--primary);width:18px;height:18px;flex-shrink:0"></i>
+          <div class="info">
+            <div class="nm">Trả lời <span id="fpReplyName">—</span></div>
+            <div class="qmsg" id="fpReplySnippet">—</div>
+          </div>
+          <span class="x" id="fpReplyCancel">×</span>
+        </div>
+        <!-- Quick templates chips (giống Zalo) -->
+        <div class="quick-templates" id="fpQuickTemplates"></div>
+        <div class="composer">
+          <textarea id="fpInput" rows="1" placeholder="Nhập tin nhắn…"></textarea>
+          <div class="composer-bar">
+            <div class="composer-tools">
+              <button class="icon-btn" id="fpEmojiBtn" title="Emoji"><i data-lucide="smile"></i></button>
+              <button class="icon-btn" id="fpAttachBtn" title="Đính kèm ảnh/file"><i data-lucide="paperclip"></i></button>
+              <input type="file" id="fpAttachFile" multiple accept="image/*,.pdf,.docx,.xlsx" class="hidden" />
+              <button class="icon-btn" id="fpScheduleBtn" title="Hẹn giờ"><i data-lucide="clock"></i></button>
+              <button class="icon-btn" id="fpNoteToggleBtn" title="Đổi sang ghi chú nội bộ (không gửi cho khách)" data-tab="reply"><i data-lucide="sticky-note"></i></button>
+              <span class="composer-hint">Enter để gửi · Shift+Enter xuống dòng</span>
+              <span id="fpComposeWindowHint" style="font-size:11px;margin-left:8px"></span>
+            </div>
+            <button class="btn-primary" id="fpSendBtn"><i data-lucide="send-horizontal"></i><span>Gửi</span></button>
+          </div>
+        </div>
+      </footer>
+    </main>
+
+    <!-- CỘT 3: Thông tin khách — dùng style Zalo #rightbar -->
+    <aside class="fp-info hidden" id="fpInfoPanel" style="background:var(--card);border-left:1px solid var(--border);padding:18px;overflow-y:auto">
+      <div class="right-head">
+        <div class="avatar xl" id="fpInfoAvatar"></div>
+        <div class="rp-name" id="fpInfoName">—</div>
+        <div class="rp-id" id="fpInfoFbId">PSID: —</div>
+        <div class="rp-id" style="margin-top:4px">
+          <span id="fpInfoFirstSeen">—</span> · <span id="fpInfoMsgCount">— tin</span>
+        </div>
+      </div>
+      <div class="right-section">
+        <h3>Thẻ phân loại</h3>
+        <div id="fpInfoLabels"></div>
+        <button class="btn-ghost block" id="fpInfoEditLabelsBtn" style="margin-top:8px"><i data-lucide="tag"></i> Sửa nhãn</button>
+      </div>
+      <div class="right-section">
+        <h3>AI tự động</h3>
+        <label class="ar-toggle" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="fpAutoReplyEnabled" />
+          <span class="ar-switch"></span>
+          <span class="ar-toggle-label">
+            <span style="font-weight:600;font-size:13px">AI tự động trả lời</span>
+            <span id="fpAutoReplyStatus" class="ar-status" style="display:block;font-size:11px;color:var(--muted-foreground)">Đang tắt</span>
+          </span>
+        </label>
+      </div>
+      <div class="right-section">
+        <h3>Hành động</h3>
+        <button class="btn-ghost block" id="fpInfoScheduleBtn">⏰ Hẹn giờ gửi</button>
+        <button class="btn-ghost block" id="fpInfoClearAiBtn" style="margin-top:6px">🗑️ Xoá lịch sử AI</button>
+        <button class="btn-ghost block" id="fpInfoDisconnectBtn" style="margin-top:6px;color:var(--destructive)"><i data-lucide="power-off"></i> Ngắt Fanpage</button>
+      </div>
+      <div class="right-section">
+        <h3>Ghi chú nội bộ</h3>
+        <div id="fpInfoNotes"><div class="hint" style="font-size:11px">Chưa có ghi chú.</div></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section id="pageAccounts" class="page-view hidden">
+  <header class="page-head">
+    <div class="page-title"><i data-lucide="users"></i><h1>Danh sách tài khoản Zalo</h1></div>
+    <div class="page-actions">
+      <button class="btn-ghost" id="paRefreshBtn"><i data-lucide="refresh-cw"></i> Làm mới</button>
+      <button class="btn-primary" id="paAddBtn"><i data-lucide="plus"></i> Thêm tài khoản</button>
+    </div>
+  </header>
+  <div class="page-body-list">
+    <div class="page-card">
+      <div class="settings-card-head">
+        <div>
+          <h3><i data-lucide="list"></i> Tài khoản đang quản lý</h3>
+          <div class="settings-sub">Mỗi tài khoản đi kèm một proxy riêng để tránh Zalo phát hiện đa-tài-khoản cùng IP.</div>
+        </div>
+        <span id="paSummary" class="hint" style="font-size:12px"></span>
+      </div>
+      <div id="paAccountsList"></div>
+    </div>
+    <div class="page-card">
+      <div class="settings-card-head">
+        <div>
+          <h3><i data-lucide="info"></i> Định dạng Proxy</h3>
+          <div class="settings-sub">Hỗ trợ các dạng sau (paste trực tiếp vào ô Proxy):</div>
+        </div>
+      </div>
+      <ul style="margin:0;padding-left:20px;font-size:13px;line-height:1.9;color:var(--text-2)">
+        <li><code>host:port</code> — proxy public không auth (vd: <code>1.2.3.4:8080</code>)</li>
+        <li><code>host:port:user:pass</code> — proxy có auth (vd: <code>sp22v2-vn01.top1proxy.com:15140:v2-140-895175:TDEVJ</code>)</li>
+        <li><code>http://user:pass@host:port</code> — định dạng URL chuẩn</li>
+        <li><code>socks5://user:pass@host:port</code> — proxy SOCKS5</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="pageSendByPhone" class="page-view hidden">
+  <header class="page-head">
+    <div class="page-title"><i data-lucide="send"></i><h1>Nhắn tin - Theo số điện thoại</h1></div>
+    <div class="page-actions" id="pspListActions">
+      <button class="btn-ghost" id="pspRefreshBtn"><i data-lucide="refresh-cw"></i> Làm mới</button>
+      <button class="btn-primary" id="pspNewBtn"><i data-lucide="plus"></i> Tạo yêu cầu</button>
+    </div>
+    <div class="page-actions hidden" id="pspFormActions">
+      <button class="btn-ghost" id="pspBackBtn"><i data-lucide="arrow-left"></i> Quay lại</button>
+      <button class="btn-primary" id="pspSubmitBtn">Lưu</button>
+    </div>
+  </header>
+
+  <div id="pspListView" class="page-body-list">
+    <div class="camp-table-wrap">
+      <table class="camp-table">
+        <thead>
+          <tr>
+            <th style="width:50px">#</th>
+            <th>Tên yêu cầu</th>
+            <th>Ảnh/Video</th>
+            <th style="width:80px">Số lượng</th>
+            <th style="width:90px">Thành công</th>
+            <th style="width:80px">Thất bại</th>
+            <th style="width:110px">Trạng thái</th>
+            <th style="width:160px">Ngày tạo</th>
+            <th style="width:260px">Hành động</th>
+          </tr>
+        </thead>
+        <tbody id="pspCampList">
+          <tr><td colspan="9"><div class="empty" style="padding:40px">Chưa có chiến dịch nào</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="pspFormView" class="page-body hidden">
+    <div class="page-col">
+      <div class="page-card">
+        <div class="field">
+          <label class="required">Tên yêu cầu</label>
+          <input type="text" id="pspName" placeholder="VD: Chiến dịch giới thiệu khoá học T6" />
+        </div>
+        <div class="field-inline" id="pspSwitchField">
+          <label>Đổi tài khoản nếu lỗi</label>
+          <input type="number" id="pspSwitchAfter" value="5" style="width:80px" />
+          <span class="hint">lần</span>
+        </div>
+        <div class="field-inline">
+          <label>Thời gian tạm dừng từ</label>
+          <input type="number" id="pspDelayMin" value="15" style="width:80px" />
+          <span class="hint">đến</span>
+          <input type="number" id="pspDelayMax" value="20" style="width:80px" />
+          <span class="hint">giây</span>
+        </div>
+        <div class="field-inline">
+          <label id="pspPauseLabel">Dừng lại nếu gửi thành công</label>
+          <input type="number" id="pspPauseAfter" value="2" style="width:60px" />
+          <span class="hint">lần, thời gian tạm dừng</span>
+          <input type="number" id="pspPauseSec" value="10" style="width:60px" />
+          <span class="hint">giây</span>
+        </div>
+        <div class="field">
+          <label class="required" id="pspQuotaLabel">Giới hạn số lượng thực thi</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="number" id="pspQuota" value="50" style="width:80px" />
+            <span class="hint">lần /</span>
+            <input type="number" id="pspQuotaPer" value="1" style="width:60px" />
+            <select id="pspQuotaUnit" style="width:110px;margin:0">
+              <option value="day">Ngày</option>
+              <option value="hour">Giờ</option>
+            </select>
+          </div>
+        </div>
+        <label class="check"><input type="checkbox" id="pspAutoFriend" /> Tự động kết bạn nếu chưa là bạn</label>
+        <label class="check" data-psp="phone-only"><input type="checkbox" id="pspSpread" checked /> Chia đều số điện thoại</label>
+        <label class="check" data-psp="phone-only"><input type="checkbox" id="pspDedupe" /> Lọc trùng số điện thoại</label>
+        <div class="field" data-psp="msg-only">
+          <label>Nhắn tin kèm ảnh / video</label>
+          <div class="upload-box" id="pspUploadBox">
+            <input type="file" id="pspFiles" multiple accept="image/*,video/*" hidden />
+            <span>+</span><span style="margin-top:6px;font-size:12px">Tải ảnh / video</span>
+            <div id="pspFileList" style="font-size:11px;color:var(--muted-foreground);margin-top:8px"></div>
+          </div>
+        </div>
+        <div class="field-toggle" data-psp="msg-only">
+          <label>Tự động chèn emoji</label>
+          <label class="switch"><input type="checkbox" id="pspAutoEmoji" checked /><span></span></label>
+          <span class="hint">Thêm emoji random vào cuối tin (chống trùng nội dung)</span>
+        </div>
+        <div class="field-toggle" data-psp="msg-only">
+          <label>Biến thể tự nhiên</label>
+          <label class="switch"><input type="checkbox" id="pspNaturalize" checked /><span></span></label>
+          <span class="hint">Thêm chào hỏi + cảm ơn ngẫu nhiên ("Chào bạn,", "Cảm ơn nhé"...)</span>
+        </div>
+        <div class="field-toggle" data-psp="msg-only">
+          <label>Obfuscate (chống detect spam)</label>
+          <label class="switch"><input type="checkbox" id="pspObfuscate" checked /><span></span></label>
+          <span class="hint">Chèn ký tự ẩn vô hình để qua mặt Zalo similarity hash</span>
+        </div>
+      </div>
+
+      <div class="page-card">
+        <div class="field">
+          <label class="required">Nội dung nhắn tin</label>
+          <textarea id="pspContent" rows="5" placeholder="Nhập nội dung tin nhắn"></textarea>
+        </div>
+        <div class="field-toggle">
+          <label>Soạn tin động</label>
+          <label class="switch"><input type="checkbox" id="pspDynamic" /><span></span></label>
+          <span class="hint">Bật để gửi nhiều biến thể tin nhắn (xoay vòng)</span>
+        </div>
+        <div id="pspDynamicBox" class="hidden" style="margin-top:8px">
+          <label>Mỗi tin / 1 dòng (random gửi)</label>
+          <textarea id="pspDynamicList" rows="4" placeholder="Tin 1&#10;Tin 2&#10;Tin 3"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-col">
+      <div class="page-card">
+        <h3>Danh sách tài khoản</h3>
+        <div id="pspAccTable"></div>
+      </div>
+
+      <!-- Target: Phones (msg-phone) -->
+      <div class="page-card target-panel" data-target="phones">
+        <h3>Danh sách số điện thoại <span class="hint">(Đã chọn: <span id="pspCount">0</span>)</span></h3>
+        <div style="display:flex;gap:6px">
+          <input type="text" id="pspPhoneInput" placeholder="Nhập số điện thoại" />
+          <button class="btn-primary" id="pspAddPhoneBtn"><i data-lucide="plus"></i> Thêm</button>
+          <span class="hint" style="align-self:center">hoặc</span>
+          <button class="btn-ghost" id="pspUploadTxtBtn"><i data-lucide="upload"></i> Tải tệp lên</button>
+          <input type="file" id="pspTxtFile" hidden accept=".txt,.csv,.tsv" />
+        </div>
+        <div class="hint" style="color:var(--destructive);margin-top:4px">Định dạng file .txt, mỗi số điện thoại 1 dòng.</div>
+        <div id="pspPhoneList" style="margin-top:10px"></div>
+      </div>
+
+      <!-- Target: Friends (msg-friends) -->
+      <div class="page-card target-panel hidden" data-target="friends">
+        <h3>Danh sách bạn bè <span class="hint">(Đã chọn: <span id="pspFriendCount">0</span> / <span id="pspFriendTotal">0</span>)</span></h3>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          <input type="text" id="pspFriendSearch" placeholder="Tìm theo tên..." />
+          <button class="btn-ghost" id="pspFriendSelectAll">Chọn tất cả</button>
+          <button class="btn-ghost" id="pspFriendClear">Bỏ chọn</button>
+        </div>
+        <div id="pspFriendList" class="psp-pick-list"></div>
+      </div>
+
+      <!-- Target: Nhóm qua link, dùng chung luồng nhắn tin theo thành viên -->
+      <div class="page-card target-panel hidden" data-target="group-link">
+        <h3>Danh sách nhóm khác <span class="hint">(Đã chọn: <span id="pspLinkCount">0</span>)</span></h3>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          <input type="text" id="pspLinkInput" placeholder="https://zalo.me/g/xxxxx" />
+          <button class="btn-primary" id="pspLinkAddBtn"><i data-lucide="plus"></i> Thêm</button>
+          <span class="hint" style="align-self:center">hoặc</span>
+          <button class="btn-ghost" id="pspLinkUploadBtn"><i data-lucide="upload"></i> Tải tệp lên</button>
+          <input type="file" id="pspLinkFile" hidden accept=".txt" />
+        </div>
+        <div class="hint" style="color:var(--destructive);margin-top:4px">Mỗi dòng 1 link, định dạng .txt</div>
+        <div id="pspLinkList" style="margin-top:10px"></div>
+        <div id="pspLinkScanResult" style="margin-top:14px"></div>
+      </div>
+
+      <!-- Target: Multi-group selection (grp-msg, grp-invite-phone) -->
+      <div class="page-card target-panel hidden" data-target="groups-multi">
+        <h3>Danh sách nhóm của tôi <span class="hint">(Đã chọn: <span id="pspGroupsMultiCount">0</span> / <span id="pspGroupsMultiTotal">0</span>)</span></h3>
+        <div style="display:flex;gap:6px;margin-bottom:8px">
+          <input type="text" id="pspGroupsMultiSearch" placeholder="🔍  Tìm kiếm nhóm..." />
+          <button class="btn-ghost" id="pspGroupsMultiSelectAll">Chọn tất cả</button>
+          <button class="btn-ghost" id="pspGroupsMultiClear">Bỏ chọn</button>
+        </div>
+        <div id="pspGroupsMultiList" class="psp-group-list"></div>
+      </div>
+
+      <!-- Target: Group members (msg-group-mem) -->
+      <div class="page-card target-panel hidden" data-target="group-mem">
+        <h3>Nhóm của tôi <span class="hint">(<span id="pspGroupTotal">0</span>)</span></h3>
+        <input type="text" id="pspGroupSearch" placeholder="🔍  Tìm kiếm nhóm..." style="margin-bottom:10px" />
+        <div id="pspMemLabelFilter" class="psp-filter-row ppf-label-filter hidden"></div>
+        <div id="pspGroupList" class="psp-group-list"></div>
+        <div id="pspGroupActions" class="hidden" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <div style="flex:1;font-size:13px">Nhóm đã chọn: <b id="pspGroupChosenName">—</b></div>
+            <button class="btn-primary" id="pspLoadMemBtn"><i data-lucide="users"></i> Lấy danh sách TV</button>
+          </div>
+          <div id="pspMemFriendOnlyWrap" class="hidden">
+            <label class="check"><input type="checkbox" id="pspMemFriendOnly" /> Chỉ thành viên đã là bạn</label>
+          </div>
+          <div id="pspMemSection" class="hidden">
+            <h3 style="margin-top:12px">Thành viên <span class="hint">(Đã chọn: <span id="pspMemCount">0</span> / <span id="pspMemTotal">0</span>)</span></h3>
+            <div style="display:flex;gap:6px;margin-bottom:8px">
+              <input type="text" id="pspMemSearch" placeholder="🔍  Lọc trong danh sách..." />
+              <button class="btn-ghost" id="pspMemSelectAll">Chọn tất cả</button>
+              <button class="btn-ghost" id="pspMemClear">Bỏ chọn</button>
+            </div>
+            <div id="pspMemList" class="psp-pick-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pageSettings" class="page-view hidden">
+  <header class="page-head">
+    <div class="page-title"><i data-lucide="settings"></i><h1>Cài đặt</h1></div>
+    <div class="page-actions">
+      <button class="btn-primary" id="stSaveBtn"><i data-lucide="save"></i> Lưu</button>
+    </div>
+  </header>
+  <div class="page-body-list settings-body">
+    <div class="page-card settings-card">
+      <div class="settings-card-head">
+        <div>
+          <h3><i data-lucide="cpu"></i> Nhà cung cấp AI</h3>
+          <div class="settings-sub">Cấu hình AI cho tư vấn bán hàng</div>
+        </div>
+      </div>
+      <div class="settings-grid-2">
+        <div class="field">
+          <label class="required">Nhà cung cấp</label>
+          <select id="stProvider">
+            <option value="claude-cli">Claude Code CLI (gói Pro/Max — không tốn token)</option>
+            <option value="anthropic">Anthropic API (Claude trực tiếp — tính phí theo token)</option>
+            <option value="openai">OpenAI API (ChatGPT — tính phí theo token)</option>
+            <option value="chatgpt-oauth">ChatGPT Subscription (OAuth — dùng gói Plus/Pro)</option>
+            <option value="local">Local LLM (Ollama — chạy model trên máy riêng)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Mô hình</label>
+          <select id="stModel">
+            <optgroup label="Claude (Anthropic)">
+              <option value="sonnet">Sonnet — cân bằng, khuyên dùng</option>
+              <option value="opus">Opus — chất lượng cao nhất, đắt nhất</option>
+              <option value="haiku">Haiku — nhanh và rẻ</option>
+            </optgroup>
+            <optgroup label="OpenAI GPT">
+              <option value="gpt-5.5">GPT-5.5 — flagship, suy luận sâu nhất</option>
+              <option value="gpt-5.5-pro">GPT-5.5 Pro — bản nâng cao</option>
+              <option value="gpt-5.4">GPT-5.4 — cân bằng</option>
+              <option value="gpt-5.4-mini">GPT-5.4 mini — nhanh, rẻ, khuyên dùng cho auto-reply</option>
+              <option value="gpt-5.4-nano">GPT-5.4 nano — rẻ nhất, throughput cao</option>
+              <option value="gpt-4.1">GPT-4.1 — tốt cho tool calling</option>
+            </optgroup>
+            <optgroup label="ChatGPT OAuth / Codex">
+              <option value="gpt-5.3-codex">GPT-5.3 Codex — coding và agent</option>
+              <option value="gpt-5.3-codex-spark">GPT-5.3 Codex Spark — nhanh</option>
+              <option value="gpt-5.2-codex">GPT-5.2 Codex — ổn định</option>
+            </optgroup>
+            <optgroup label="Local LLM (Ollama)">
+              <option value="qwen3:4b-q4_K_M">Qwen3 4B Q4_K_M — local, nhẹ và nhanh</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+
+      <div id="stAnthropicWrap" class="field hidden">
+        <label>Anthropic API key <span id="stAnthropicStatus" class="field-status"></span></label>
+        <input type="password" id="stAnthropicKey" placeholder="sk-ant-..." autocomplete="off" />
+        <div class="hint">Lấy tại console.anthropic.com → API Keys. Lưu local, không gửi đi đâu khác.</div>
+      </div>
+
+      <div id="stOpenAiWrap" class="field hidden">
+        <label>OpenAI API key <span id="stOpenAiStatus" class="field-status"></span></label>
+        <div class="settings-row">
+          <input type="password" id="stOpenAiKey" placeholder="sk-..." autocomplete="off" style="flex:1" />
+          <button type="button" class="btn-ghost" id="stOpenAiTestBtn"><i data-lucide="check-circle-2"></i> Kiểm tra</button>
+        </div>
+        <div id="stOpenAiTestResult" class="hint hidden" style="margin-top:8px"></div>
+        <div class="hint" style="margin-top:6px">
+          Lấy key tại <a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener" style="color:var(--primary)">platform.openai.com/api-keys</a>.
+          Nhớ <a href="https://platform.openai.com/settings/organization/billing/overview" target="_blank" rel="noopener" style="color:var(--primary)">nạp tiền</a> trước khi dùng (tối thiểu $5).
+          Phải tạo key mới → copy ngay (key chỉ hiện 1 lần).
+        </div>
+      </div>
+
+      <div id="stLocalWrap" class="field hidden">
+        <label>URL Ollama / Local LLM</label>
+        <div class="settings-row">
+          <input type="url" id="stLocalUrl" placeholder="http://127.0.0.1:11434" class="mono" style="flex:1" />
+          <button type="button" class="btn-ghost" id="stLocalTestBtn"><i data-lucide="plug-zap"></i> Kiểm tra</button>
+        </div>
+        <div id="stLocalTestResult" class="hint hidden" style="margin-top:8px"></div>
+        <div class="hint" style="margin-top:6px">
+          Ollama mặc định dùng <code>http://127.0.0.1:11434</code>. Nếu website chạy trên VPS, URL này phải trỏ qua tunnel từ VPS về máy đang chạy Ollama.
+        </div>
+      </div>
+
+      <div id="stChatGptOauthWrap" class="settings-subcard hidden">
+        <div class="settings-subcard-head">
+          <i data-lucide="key-round"></i>
+          <div>
+            <div class="subcard-title">Đăng nhập ChatGPT Subscription</div>
+            <div class="subcard-sub">Dùng quyền ChatGPT/Codex qua OAuth, không cần OpenAI API key</div>
+          </div>
+        </div>
+        <div class="settings-row">
+          <button type="button" class="btn-primary" id="stChatGptLoginBtn">Đăng nhập ChatGPT</button>
+          <button type="button" class="btn-ghost hidden" id="stChatGptLogoutBtn">Ngắt kết nối</button>
+          <span id="stChatGptStatus" class="settings-status"></span>
+        </div>
+        <div class="hint" style="margin-top:8px">
+          Nếu ChatGPT báo cần xác thực mã thiết bị cho Codex, hãy bật <strong>Device code login</strong> trong Cài đặt bảo mật ChatGPT rồi thử lại.
+          <a href="https://developers.openai.com/codex/auth#preferred-device-code-authentication-beta" target="_blank" rel="noopener" style="color:var(--primary)">Hướng dẫn chính thức</a>.
+        </div>
+        <div id="stChatGptLoginFlow" class="hidden cli-flow">
+          <div class="cli-step">
+            <span class="cli-step-num">1</span>
+            <div class="cli-step-body">
+              <div class="cli-step-label">Mở URL và đăng nhập tài khoản ChatGPT:</div>
+              <div class="settings-row">
+                <input id="stChatGptAuthUrl" readonly class="mono" />
+                <button type="button" class="btn-ghost" id="stChatGptOpenUrlBtn">Mở</button>
+                <button type="button" class="btn-ghost" id="stChatGptCopyUrlBtn">Copy</button>
+              </div>
+            </div>
+          </div>
+          <div class="cli-step">
+            <span class="cli-step-num">2</span>
+            <div class="cli-step-body">
+              <div class="cli-step-label">Sau khi đăng nhập, trang localhost có thể báo lỗi vì website chạy trên VPS. Copy toàn bộ URL trên thanh địa chỉ rồi dán vào đây:</div>
+              <div class="settings-row">
+                <input id="stChatGptRedirectUrl" placeholder="http://localhost:1455/auth/callback?code=...&state=..." class="mono" />
+                <button type="button" class="btn-primary" id="stChatGptSubmitBtn">Xác nhận</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="stCliInfo" class="settings-subcard">
+        <div class="settings-subcard-head">
+          <i data-lucide="key-round"></i>
+          <div>
+            <div class="subcard-title">Đăng nhập Claude CLI</div>
+            <div class="subcard-sub">Token lưu vào ~/.claude/ — chỉ cần login 1 lần</div>
+          </div>
+        </div>
+        <div class="settings-row">
+          <button type="button" class="btn-primary" id="stCliLoginBtn">Đăng nhập Claude</button>
+          <span id="stCliLoginStatus" class="settings-status"></span>
+        </div>
+        <div id="stCliLoginFlow" class="hidden cli-flow">
+          <div class="cli-step">
+            <span class="cli-step-num">1</span>
+            <div class="cli-step-body">
+              <div class="cli-step-label">Mở URL, đăng nhập Claude Pro/Max, copy code trả về:</div>
+              <div class="settings-row">
+                <input id="stCliAuthUrl" readonly class="mono" />
+                <button type="button" class="btn-ghost" id="stCliOpenUrlBtn">Mở</button>
+                <button type="button" class="btn-ghost" id="stCliCopyUrlBtn">Copy</button>
+              </div>
+            </div>
+          </div>
+          <div class="cli-step">
+            <span class="cli-step-num">2</span>
+            <div class="cli-step-body">
+              <div class="cli-step-label">Paste code vào đây:</div>
+              <div class="settings-row">
+                <input id="stCliCode" placeholder="Dán code từ trang đăng nhập Claude vào đây" class="mono" />
+                <button type="button" class="btn-primary" id="stCliSubmitBtn">Xác nhận</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <details class="cli-manual">
+          <summary>Đăng nhập thủ công qua terminal</summary>
+          <div class="cli-manual-body">
+            1. Mở terminal, chạy <code>claude</code> → trong session gõ <code>/login</code> (hoặc <code>claude setup-token</code>)<br>
+            2. Đăng nhập tài khoản Claude Pro/Max — token được lưu vào <code>~/.claude/</code><br>
+            3. Quay lại đây bấm "Lưu"
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <div class="page-card settings-card usage-card">
+      <div class="settings-card-head usage-head">
+        <div>
+          <h3><i data-lucide="chart-no-axes-column-increasing"></i> Token & chi phí API</h3>
+          <div class="settings-sub">OpenAI và Anthropic API · USD · múi giờ Việt Nam (GMT+7)</div>
+        </div>
+        <div class="usage-actions">
+          <div class="usage-range" role="group" aria-label="Khoảng thống kê">
+            <button type="button" data-usage-days="7">7 ngày</button>
+            <button type="button" class="active" data-usage-days="30">30 ngày</button>
+            <button type="button" data-usage-days="90">90 ngày</button>
+          </div>
+          <button class="icon-btn" id="stUsageRefreshBtn" type="button" title="Làm mới số liệu"><i data-lucide="refresh-cw"></i></button>
+        </div>
+      </div>
+      <div id="stUsageLoading" class="usage-empty">Đang tải số liệu...</div>
+      <div id="stUsageContent" class="hidden">
+        <div id="stUsageMetrics" class="usage-metrics"></div>
+        <div id="stUsageProviders" class="usage-providers"></div>
+        <div class="usage-charts">
+          <div class="usage-chart-section">
+            <div class="usage-chart-title">Token mỗi ngày</div>
+            <div class="usage-bars" id="stUsageTokenChart"></div>
+          </div>
+          <div class="usage-chart-section">
+            <div class="usage-chart-title">Chi phí mỗi ngày (USD)</div>
+            <div class="usage-bars" id="stUsageCostChart"></div>
+          </div>
+        </div>
+        <div class="usage-table-head">
+          <span>Chi tiết theo ngày</span>
+          <span id="stUsageMeta"></span>
+        </div>
+        <div class="usage-table-wrap">
+          <table class="usage-table" id="stUsageDailyTable"></table>
+        </div>
+        <div class="usage-table-head model-head"><span>Theo model</span></div>
+        <div class="usage-table-wrap">
+          <table class="usage-table" id="stUsageModelTable"></table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-card settings-card">
+      <div class="settings-card-head">
+        <div>
+          <h3><i data-lucide="brain"></i> Prompt hệ thống cho AI <span style="font-size:11px;color:var(--muted-foreground);font-weight:400;margin-left:6px">cấu trúc Anthropic chuẩn 8 phần</span></h3>
+          <div class="settings-sub">Mỗi phần 1 mục đích rõ. Để trống = dùng mặc định. Áp dụng ngay, không cần restart. Knowledge Base (phần 4) tự lấy từ card "Sản phẩm" bên dưới.</div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="btn-ghost" id="stPromptPreviewBtn" type="button" style="font-size:12px"><i data-lucide="eye"></i> Xem prompt cuối</button>
+        </div>
+      </div>
+      <div id="stPromptSectionsList" style="display:flex;flex-direction:column;gap:8px;padding-top:8px"></div>
+      <div class="hint" id="stPromptStatusLine" style="font-size:11px;margin-top:8px"></div>
+    </div>
+
+    <div class="page-card settings-card">
+      <div class="settings-card-head">
+        <div>
+          <h3><i data-lucide="package"></i> Sản phẩm</h3>
+          <div class="settings-sub">Thông tin để AI tư vấn đúng sản phẩm — Số nhỏ = ưu tiên cao (1 đẩy trước, 2 bán kèm sau)</div>
+        </div>
+        <button class="btn-primary" id="stAddProductBtn" type="button"><i data-lucide="plus"></i> Thêm sản phẩm</button>
+      </div>
+      <div id="stProductList"></div>
+    </div>
+  </div>
+</section>
+
+
+<section id="pageBackup" class="page-view hidden">
+  <header class="page-head">
+    <div class="page-title"><i data-lucide="cloud-download"></i><h1>Backup bạn bè</h1></div>
+    <div class="page-actions">
+      <button class="btn-primary" id="bkExportBtn" disabled><i data-lucide="download"></i> Export CSV</button>
+    </div>
+  </header>
+  <div class="page-body" style="grid-template-columns:360px minmax(0,1fr)">
+    <div class="page-col">
+      <div class="page-card">
+        <h3>Danh sách tài khoản</h3>
+        <div id="bkAccList"></div>
+        <button class="btn-primary block" id="bkLoadBtn" style="margin-top:14px"><i data-lucide="download"></i> Tải bạn bè</button>
+      </div>
+    </div>
+    <div class="page-col">
+      <div class="page-card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <h3 style="margin:0">Danh sách bạn bè <span class="hint">(Đã chọn: <span id="bkSelCount">0</span> / <span id="bkTotal">0</span>)</span></h3>
+          <span style="flex:1"></span>
+          <input type="text" id="bkSearch" placeholder="🔍  Tìm theo tên / SĐT..." style="max-width:280px;margin:0" />
+        </div>
+        <div id="bkFriendList"><div class="empty" style="padding:30px">Chọn tài khoản và bấm "Tải bạn bè".</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pageInvites" class="page-view hidden">
+  <header class="page-head">
+    <div class="page-title"><i data-lucide="inbox"></i><h1>Danh sách lời mời kết bạn</h1></div>
+    <div class="page-actions">
+      <button class="btn-ghost" id="invRejectAllBtn"><i data-lucide="x"></i> Từ chối tất cả</button>
+      <button class="btn-primary" id="invAcceptAllBtn"><i data-lucide="check"></i> Đồng ý tất cả</button>
+    </div>
+  </header>
+  <div class="page-body" style="grid-template-columns:360px minmax(0,1fr)">
+    <div class="page-col">
+      <div class="page-card">
+        <h3>Danh sách tài khoản</h3>
+        <div id="invAccList"></div>
+        <button class="btn-primary block" id="invLoadBtn" style="margin-top:14px"><i data-lucide="download"></i> Tải danh sách lời mời kết bạn</button>
+      </div>
+    </div>
+    <div class="page-col">
+      <div id="invReqList"></div>
+    </div>
+  </div>
+</section>
+
+<section id="pageAutoReply" class="page-view hidden">
+  <header class="page-head">
+    <div class="page-title"><i data-lucide="bot-message-square"></i><h1>Tự động trả lời</h1></div>
+    <div class="page-actions">
+      <label class="ar-toggle" style="margin-right:8px" title="Bật/tắt AI cho TẤT CẢ hội thoại đã cấu hình">
+        <input type="checkbox" id="arMasterEnabled" />
+        <span class="ar-switch"></span>
+        <span class="ar-toggle-label" id="arMasterLabel">Bật AI toàn bộ</span>
+      </label>
+      <button class="btn-ghost" id="arRefreshBtn"><i data-lucide="refresh-cw"></i> Làm mới</button>
+    </div>
+  </header>
+  <div class="page-body-list settings-body">
+    <div class="page-card settings-card">
+      <div class="settings-card-head">
+        <div>
+          <h3><i data-lucide="sliders-horizontal"></i> Cấu hình mặc định toàn hệ thống</h3>
+          <div class="settings-sub">Áp dụng cho mọi hội thoại mới chưa có cài đặt riêng. Sửa hội thoại cụ thể vẫn ưu tiên cài đặt riêng.</div>
+        </div>
+        <span id="arDefaultsStatus" class="hint" style="font-size:12px"></span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;padding-top:8px">
+        <div>
+          <label style="display:block;margin-bottom:6px">Chế độ mặc định</label>
+          <div style="display:flex;gap:14px;flex-wrap:wrap">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="arDefMode" value="ai" /> AI tạo (khuyên dùng)</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="arDefMode" value="static" /> Câu cố định</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="radio" name="arDefMode" value="keyword" /> Theo từ khoá</label>
+          </div>
+        </div>
+
+        <div id="arDefStaticBox" class="hidden">
+          <label>Câu trả lời cố định mặc định</label>
+          <textarea id="arDefStaticReply" rows="2" placeholder="VD: Bên mình sẽ phản hồi sau ít phút nha."></textarea>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label>Delay trước khi gửi (giây)</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="number" id="arDefDelayMin" min="0" value="15" style="width:70px" />
+              <span class="hint">đến</span>
+              <input type="number" id="arDefDelayMax" min="0" value="35" style="width:70px" />
+            </div>
+          </div>
+          <div>
+            <label>Tối đa reply/giờ</label>
+            <input type="number" id="arDefMaxPerHour" min="1" value="6" />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label>Giờ bắt đầu</label>
+            <input type="time" id="arDefWorkStart" value="00:00" />
+          </div>
+          <div>
+            <label>Giờ kết thúc</label>
+            <input type="time" id="arDefWorkEnd" value="23:59" />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div>
+            <label>Tạm dừng sau khi gửi tay (phút)</label>
+            <input type="number" id="arDefCooldown" min="0" value="10" />
+          </div>
+          <div>
+            <label>Chỉ trả lời N tin đầu (0 = trả lời mọi tin)</label>
+            <input type="number" id="arDefFirstN" min="0" max="100" value="3" />
+          </div>
+        </div>
+
+        <div class="ar-stranger-card">
+          <div class="ar-stranger-icon"><i data-lucide="shield-check"></i></div>
+          <div class="ar-stranger-text">
+            <div class="ar-stranger-title">Mặc định cho hội thoại nhóm</div>
+            <div class="ar-stranger-desc">Áp dụng khi bật/cấu hình nhóm mới. Có thể chọn @mention, whitelist user, hoặc reply toàn bộ tin nhắn trong nhóm.</div>
+            <label style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer">
+              <input type="checkbox" id="arDefReplyAllGroup" />
+              Reply toàn bộ tin nhắn trong nhóm
+            </label>
+            <div class="hint">Chế độ mạnh: AI sẽ xét mọi tin nhắn trong nhóm đã bật, không cần @mention/whitelist.</div>
+            <label style="display:flex;align-items:center;gap:8px;margin-top:10px;cursor:pointer">
+              <input type="checkbox" id="arDefOnlyMention" />
+              Chỉ reply khi bị @mention
+            </label>
+            <div style="margin-top:10px">
+              <label>Whitelist user mặc định cho nhóm (mỗi userId 1 dòng)</label>
+              <textarea id="arDefAllowedUsers" rows="3" placeholder="VD:&#10;123456789&#10;987654321"></textarea>
+              <div class="hint">Nếu nhập danh sách, AI chỉ reply tin từ các userId này trong nhóm.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ar-stranger-card">
+          <div class="ar-stranger-icon"><i data-lucide="user-plus"></i></div>
+          <div class="ar-stranger-text">
+            <div class="ar-stranger-title">Tự động bật AI khi khách lạ nhắn riêng</div>
+            <div class="ar-stranger-desc">Chỉ áp dụng hội thoại cá nhân mới chưa từng kết bạn. Nhóm không bao giờ tự bật AI; quản trị viên phải cấu hình riêng.</div>
+          </div>
+          <label class="switch ar-stranger-switch"><input type="checkbox" id="arDefStranger" /><span></span></label>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:12px">
+          <button type="button" class="btn-ghost" id="arDefResetBtn"><i data-lucide="rotate-ccw"></i> Khôi phục mặc định</button>
+          <button type="button" class="btn-primary" id="arDefSaveBtn"><i data-lucide="save"></i> Lưu cấu hình chung</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-card settings-card">
+      <div class="settings-card-head">
+        <div>
+          <h3><i data-lucide="tag"></i> Áp dụng AI theo nhãn khách hàng</h3>
+          <div class="settings-sub">Chọn các nhãn được AI tự động trả lời. Để trống = áp cho mọi hội thoại đã bật; riêng nhóm cần @mention, whitelist người gửi, hoặc reply toàn bộ.</div>
+        </div>
+        <span id="arLabelFilterStatus" class="hint" style="font-size:12px"></span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;padding-top:8px">
+        <div>
+          <label style="display:block;margin-bottom:6px;font-size:13px;font-weight:500">Nhãn được AI rep (whitelist)</label>
+          <div id="arRequireLabelsBox" class="ar-label-picker"></div>
+          <div class="hint" style="font-size:11px;margin-top:6px">Chọn nhiều nhãn: hội thoại gắn 1 trong các nhãn này mới được AI rep.</div>
+        </div>
+        <div>
+          <label style="display:block;margin-bottom:6px;font-size:13px;font-weight:500">Tự động gán nhãn cho khách mới</label>
+          <select id="arStrangerLabelSelect">
+            <option value="">— Không gán nhãn —</option>
+          </select>
+          <div class="hint" style="font-size:11px;margin-top:6px">Khi khách lạ nhắn tin (chưa có thread) và toggle "Tự động bật AI" bên trên đang ON → tự gán nhãn này. Khách mới sẽ vào whitelist nhãn.</div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;border-top:1px solid var(--border);padding-top:12px">
+          <button type="button" class="btn-primary" id="arLabelFilterSaveBtn"><i data-lucide="save"></i> Lưu bộ lọc nhãn</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-card settings-card">
+      <div class="settings-card-head">
+        <div>
+          <h3><i data-lucide="list-checks"></i> Danh sách hội thoại đã cấu hình</h3>
+          <div class="settings-sub">Hiển thị các hội thoại đã có cấu hình AI riêng. Bấm vào từng hội thoại bên dưới để tuỳ chỉnh chế độ, delay, giờ làm việc... riêng cho hội thoại đó.</div>
+        </div>
+        <span id="arSummary" class="hint" style="font-size:12px"></span>
+      </div>
+      <div id="arBulkBar" class="ar-bulk-bar hidden">
+        <span id="arBulkCount">0 đã chọn</span>
+        <button class="btn-ghost" id="arBulkSelectAll"><i data-lucide="check-square"></i> Chọn tất cả</button>
+        <button class="btn-ghost" id="arBulkClear"><i data-lucide="x"></i> Bỏ chọn</button>
+        <button class="btn-ghost" id="arBulkEnable"><i data-lucide="toggle-right"></i> Bật AI</button>
+        <button class="btn-ghost" id="arBulkDisable"><i data-lucide="toggle-left"></i> Tắt AI</button>
+        <button class="btn-ghost danger" id="arBulkDelete"><i data-lucide="trash-2"></i> Xoá cấu hình đã chọn</button>
+      </div>
+      <div id="arThreadList"></div>
+    </div>
+
+    <div class="page-card settings-card">
+      <div class="settings-card-head">
+        <div>
+          <h3><i data-lucide="history"></i> Lịch sử reply gần đây</h3>
+          <div class="settings-sub">50 lượt AI tự động trả lời gần nhất</div>
+        </div>
+      </div>
+      <div id="arRecentLog"></div>
+    </div>
+  </div>
+</section>
+
+<main id="chatMain">
+  <header id="chatHeader" class="hidden">
+    <div class="avatar lg" id="chHeadAvatar"></div>
+    <div class="chat-meta">
+      <div class="chat-title" id="chHeadName">—</div>
+      <div class="chat-sub" id="chHeadSub">—</div>
+    </div>
+    <div class="chat-actions">
+      <div id="inChatSearchBox" class="hidden" style="display:flex;align-items:center;gap:6px">
+        <input type="text" id="inChatSearchInput" placeholder="Tìm trong hội thoại..." style="margin:0;height:32px;width:220px;padding:6px 10px;font-size:13px" />
+        <span id="inChatSearchCount" style="font-size:11px;color:var(--muted-foreground)">0/0</span>
+        <button class="icon-btn" id="inChatSearchClose" title="Đóng"><i data-lucide="x"></i></button>
+      </div>
+      <button class="icon-btn" id="searchInChat" title="Tìm trong tin nhắn"><i data-lucide="search"></i></button>
+      <button class="icon-btn" id="aiAdvisorBtn" title="AI Cố vấn chốt sale"><i data-lucide="sparkles"></i></button>
+      <button class="icon-btn" id="labelBtn" title="Gắn nhãn"><i data-lucide="tag"></i></button>
+      <button class="icon-btn" id="deleteChatBtn" title="Xoá toàn bộ hội thoại (phía mình)"><i data-lucide="trash-2"></i></button>
+      <button class="icon-btn" id="toggleRightPanel" title="Thông tin"><i data-lucide="info"></i></button>
+    </div>
+  </header>
+
+  <div id="chatBody">
+    <div class="placeholder" id="chatPlaceholder">
+      <div class="ph-icon"><i data-lucide="messages-square" style="width:56px;height:56px"></i></div>
+      <div class="ph-title">OMNI AI MARKETING</div>
+      <div class="ph-sub">Chọn một hội thoại bên trái để bắt đầu, hoặc bấm "Thêm tài khoản" ở trên cùng để đăng nhập tài khoản Zalo mới.</div>
+    </div>
+    <div id="messages" class="hidden"></div>
+  </div>
+
+  <footer id="chatFooter" class="hidden">
+    <div id="replyPreview">
+      <i data-lucide="reply" style="color:var(--primary);width:18px;height:18px;flex-shrink:0"></i>
+      <div class="info">
+        <div class="nm">Trả lời <span id="replyName">—</span></div>
+        <div class="qmsg" id="replySnippet">—</div>
+      </div>
+      <span class="x" id="replyCancel">×</span>
+    </div>
+    <div class="quick-templates" id="quickTemplates"></div>
+    <div class="composer">
+      <textarea id="msgInput" rows="1" placeholder="Nhập tin nhắn…"></textarea>
+      <div id="mentionDropdown"></div>
+      <div class="composer-bar">
+        <div class="composer-tools">
+          <button class="icon-btn" id="emojiBtn" title="Sticker / emoji"><i data-lucide="smile"></i></button>
+          <button class="icon-btn" id="attachBtn" title="Đính kèm ảnh/file"><i data-lucide="paperclip"></i></button>
+          <input type="file" id="attachFile" multiple accept="image/*,.pdf,.docx,.xlsx,.zip" class="hidden" />
+          <button class="icon-btn" id="scheduleQuickBtn" title="Hẹn giờ"><i data-lucide="clock"></i></button>
+          <span class="composer-hint">Enter để gửi · Shift+Enter xuống dòng</span>
+        </div>
+        <button class="btn-primary" id="sendBtn"><i data-lucide="send-horizontal"></i><span>Gửi</span></button>
+      </div>
+    </div>
+  </footer>
+</main>
+
+<aside id="aiPanel" class="hidden">
+  <div class="ai-head">
+    <div class="ai-head-title">
+      <i data-lucide="sparkles" class="ai-head-icon"></i>
+      <div class="ai-head-text">
+        <b>AI Cố vấn chốt sale</b>
+        <span class="ai-head-ctx" id="aiCtx">Mở 1 hội thoại để AI có bối cảnh.</span>
+      </div>
+    </div>
+    <div class="ai-head-actions">
+      <button class="icon-btn" id="aiClearBtn" title="Xoá lịch sử AI của hội thoại này"><i data-lucide="eraser"></i></button>
+      <button class="icon-btn" id="aiClose" title="Đóng"><i data-lucide="x"></i></button>
+    </div>
+  </div>
+
+  <div class="ai-autoreply-bar">
+    <label class="ar-toggle ar-toggle-compact">
+      <input type="checkbox" id="rpAutoReplyEnabled" />
+      <span class="ar-switch"></span>
+    </label>
+    <div class="ar-bar-text">
+      <span class="ar-bar-title">AI tự động trả lời</span>
+      <span id="rpAutoReplyStatus" class="ar-bar-status">Đang tắt</span>
+    </div>
+    <button class="icon-btn ar-bar-btn" id="rpAutoReplyTestBtn" title="Test thử AI sẽ trả lời gì cho tin gần nhất"><i data-lucide="flask-conical"></i></button>
+    <button class="icon-btn ar-bar-btn" id="rpAutoReplyConfigBtn" title="Cài đặt chi tiết"><i data-lucide="settings-2"></i></button>
+  </div>
+  <div id="rpAutoReplyInfo" class="ar-info"></div>
+  <div id="rpAutoReplyTestResult" class="ar-test-result hidden"></div>
+  <details class="ar-recent" id="rpAutoReplyRecent" hidden>
+    <summary>Xem reply gần đây trong hội thoại này</summary>
+    <div id="rpAutoReplyLog" class="ar-recent-list"></div>
+  </details>
+
+  <div class="ai-quick-grid">
+    <button class="ai-quick" data-prompt="Phân tích lead này dựa trên hành vi cụ thể trong chat (không dùng template): họ đang ở giai đoạn nào, nỗi đau / nhu cầu thật của họ là gì (đọc giữa các dòng, không lặp lại lời họ nói), và 2-3 cách tiếp cận khác nhau mà team có thể chọn. Mỗi cách tiếp cận có rủi ro / lợi ích riêng — phân tích trade-off, đừng chỉ liệt kê.">
+      <i data-lucide="user-search"></i><span>Phân tích lead</span>
+    </button>
+    <button class="ai-quick" data-prompt="Đề xuất 3 câu reply ngắn cho khách dựa trên BỐI CẢNH CỤ THỂ của hội thoại này. Đánh số 1/ 2/ 3/. Mỗi câu phải dùng MỘT ANGLE / CÁCH TIẾP CẬN KHÁC NHAU (vd: đồng cảm với pain cụ thể của khách, hỏi qualify sâu hơn, đưa social proof / case thực tế, kể mini-story liên quan, tạo urgency mềm, neo giá trị, đánh vào FOMO, hoặc ngược lại — chậm rãi đặt câu hỏi mở để khách tự nói). KHÔNG dùng 3 tone cố định 'chuyên nghiệp/thân thiện/khan hiếm'. Tự chọn 3 angle phù hợp NHẤT với khách này, giải thích ngắn vì sao chọn angle đó.">
+      <i data-lucide="messages-square"></i><span>Gợi ý 3 reply</span>
+    </button>
+    <button class="ai-quick" data-prompt="Viết kịch bản chốt sale cá nhân hoá cho lead này dựa trên đặc điểm cụ thể của họ trong chat. Chọn công thức phù hợp (AIDA, PAS, BAB, FAB, hoặc tự design) — giải thích vì sao chọn công thức đó cho khách này. Kịch bản phải có ít nhất 3 bước, mỗi bước có câu mẫu cụ thể có thể copy gửi ngay. Không generic — phải reference cụ thể những gì khách đã nói.">
+      <i data-lucide="target"></i><span>Kịch bản chốt</span>
+    </button>
+    <button class="ai-quick" data-prompt="Dự đoán 2-3 phản đối CỤ THỂ mà lead này có thể đưa ra (dựa trên ngữ cảnh + ngành / hoàn cảnh của khách, không chỉ phản đối generic). Với mỗi phản đối: viết câu mẫu khách có thể nói + cách trả lời mềm + cảnh báo nếu trả lời sai hướng nào. Ưu tiên phản đối khó nhất.">
+      <i data-lucide="shield-alert"></i><span>Xử lý phản đối</span>
+    </button>
+  </div>
+
+  <div class="ai-log" id="aiLog"></div>
+  <div class="ai-input">
+    <textarea id="aiInput" rows="1" placeholder="Hỏi AI về khách này..."></textarea>
+    <button class="btn-primary" id="aiSendBtn" title="Gửi (Enter)"><i data-lucide="send-horizontal"></i></button>
+  </div>
+</aside>
+
+<aside id="rightbar" class="hidden">
+  <div class="right-head">
+    <div class="avatar xl" id="rpAvatar"></div>
+    <div class="rp-name" id="rpName">—</div>
+    <div class="rp-id" id="rpId">—</div>
+  </div>
+  <div class="right-section">
+    <h3>Thẻ phân loại</h3>
+    <div id="rpLabels"></div>
+    <button class="btn-ghost block" id="rpEditLabelsBtn"><i data-lucide="tag"></i> Sửa nhãn</button>
+  </div>
+  <div class="right-section">
+    <h3>Hành động</h3>
+    <button class="btn-ghost block" id="rpScheduleBtn">⏰ Hẹn giờ gửi</button>
+    <button class="btn-ghost block" id="rpClearHistory">🗑️ Xoá lịch sử local</button>
+  </div>
+</aside>
+
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal" id="modalAddAcc">
+    <div class="modal-head"><h2>Thêm tài khoản Zalo</h2><button class="close-btn" data-close="modalAddAcc">×</button></div>
+    <div class="modal-body">
+      <label>Tên gợi nhớ (tuỳ chọn)</label>
+      <input type="text" id="addAccName" placeholder="VD: Acc HC Quảng Cáo 1" />
+      <label>Proxy (khuyến nghị — mỗi tài khoản 1 proxy riêng)</label>
+      <input type="text" id="addAccProxy" placeholder="host:port:user:pass  hoặc  http://user:pass@host:port" />
+      <div class="hint" style="margin-top:-4px;font-size:11px;color:var(--muted-foreground)">Để trống = login bằng IP của VPS. Có proxy giúp tránh Zalo phát hiện đa tài khoản cùng IP.</div>
+      <div class="row">
+        <button class="btn-primary" id="startQrBtn">Bắt đầu, hiện QR</button>
+      </div>
+      <div id="qrBox" class="qr-box hidden"></div>
+      <div id="addAccStatus" class="status-line"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalBulk">
+    <div class="modal-head"><h2>Gửi hàng loạt (cùng tin, nhiều người)</h2><button class="close-btn" data-close="modalBulk">×</button></div>
+    <div class="modal-body">
+      <label>Chọn người nhận (mỗi dòng 1 user/group ID)</label>
+      <textarea id="bulkTargets" rows="6" placeholder="123456789&#10;987654321"></textarea>
+      <label>Nội dung</label>
+      <textarea id="bulkContent" rows="4"></textarea>
+      <label>Delay giữa các tin (ms)</label>
+      <input type="number" id="bulkDelay" value="3000" min="500" />
+      <button class="btn-primary" id="bulkSendBtn">Gửi ngay</button>
+      <div id="bulkProgress" class="status-line"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalBroadcast">
+    <div class="modal-head"><h2>Broadcast (1000+ người)</h2><button class="close-btn" data-close="modalBroadcast">×</button></div>
+    <div class="modal-body">
+      <label>Nhập User ID / Group ID (mỗi dòng 1 số)</label>
+      <textarea id="bcTargets" rows="8" placeholder="123456789..."></textarea>
+      <label>Nội dung</label>
+      <textarea id="bcContent" rows="4"></textarea>
+      <div class="row">
+        <div style="flex:1"><label>Delay (ms, random ±40%)</label><input type="number" id="bcDelay" value="5000" min="2000" /></div>
+      </div>
+      <button class="btn-primary" id="bcSendBtn">Bắt đầu Broadcast</button>
+      <div id="bcProgress" class="status-line"></div>
+      <h3 style="margin-top:14px">Lịch sử broadcast</h3>
+      <div id="bcHistory"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalSchedule">
+    <div class="modal-head"><h2>Hẹn giờ gửi tin</h2><button class="close-btn" data-close="modalSchedule">×</button></div>
+    <div class="modal-body">
+      <label>Người nhận (ID hội thoại)</label>
+      <input type="text" id="schThread" placeholder="ID..." />
+      <label>Nội dung</label>
+      <textarea id="schContent" rows="4"></textarea>
+      <label>Thời điểm gửi</label>
+      <input type="datetime-local" id="schAt" />
+      <button class="btn-primary" id="schAddBtn">Thêm lịch hẹn</button>
+      <h3 style="margin-top:14px">Lịch chờ gửi</h3>
+      <div id="schList"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalTemplate">
+    <div class="modal-head"><h2>Template tin nhắn</h2><button class="close-btn" data-close="modalTemplate">×</button></div>
+    <div class="modal-body">
+      <label>Tên template</label>
+      <input type="text" id="tplName" placeholder="VD: Chào khách mới" />
+      <label>Nội dung</label>
+      <textarea id="tplContent" rows="4"></textarea>
+      <button class="btn-primary" id="tplAddBtn">+ Thêm template</button>
+      <h3 style="margin-top:14px">Danh sách template</h3>
+      <div id="tplList"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalAutoreply">
+    <div class="modal-head"><h2>Trả lời tự động</h2><button class="close-btn" data-close="modalAutoreply">×</button></div>
+    <div class="modal-body">
+      <label>Từ khoá (tin chứa từ này sẽ được trả lời)</label>
+      <input type="text" id="arKeyword" placeholder="VD: giá, bao nhiêu, ship" />
+      <label>Nội dung trả lời</label>
+      <textarea id="arResponse" rows="3"></textarea>
+      <label>Phạm vi</label>
+      <select id="arScope">
+        <option value="all">Tất cả</option>
+        <option value="user">Chỉ tin nhắn cá nhân</option>
+        <option value="group">Chỉ trong nhóm</option>
+      </select>
+      <button class="btn-primary" id="arAddBtn">+ Thêm quy tắc</button>
+      <h3 style="margin-top:14px">Quy tắc đang chạy</h3>
+      <div id="arList"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalAction">
+    <div class="modal-head"><h2 id="actTitle">Hành động</h2><button class="close-btn" data-close="modalAction">×</button></div>
+    <div class="modal-body">
+      <div id="actDesc" class="status-line" style="margin-bottom:10px"></div>
+      <div id="actFields"></div>
+      <div class="row" style="margin-top:6px;gap:8px">
+        <button class="btn-primary" id="actRunBtn">Chạy</button>
+        <button class="btn-ghost" id="actStopBtn">Dừng</button>
+      </div>
+      <div id="actProgress" class="status-line"></div>
+      <div id="actErrors" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalRequests">
+    <div class="modal-head"><h2>Lời mời kết bạn</h2><button class="close-btn" data-close="modalRequests">×</button></div>
+    <div class="modal-body">
+      <div class="row" style="margin-bottom:10px;gap:6px">
+        <button class="btn-ghost" id="reqTabRecv">Đã nhận</button>
+        <button class="btn-ghost" id="reqTabSent">Đã gửi</button>
+        <span style="flex:1"></span>
+        <button class="btn-primary" id="reqAcceptAllBtn">✓ Accept all</button>
+        <button class="btn-ghost" id="reqRejectAllBtn">✕ Reject all</button>
+      </div>
+      <div id="reqList"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalFpEmoji">
+    <div class="modal-head"><h2>Chèn Emoji</h2><button class="close-btn" data-close="modalFpEmoji">×</button></div>
+    <div class="modal-body">
+      <input type="text" id="fpEmojiSearch" placeholder="Tìm emoji (gõ tiếng Anh: smile, heart, fire...)" style="margin-bottom:10px" />
+      <div id="fpEmojiGrid" style="display:grid;grid-template-columns:repeat(10,1fr);gap:6px;max-height:360px;overflow-y:auto"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalSticker">
+    <div class="modal-head"><h2>Sticker</h2><button class="close-btn" data-close="modalSticker">×</button></div>
+    <div class="modal-body">
+      <input type="text" id="stKeyword" placeholder="Tìm sticker (VD: cry, haha, love)" value="haha" />
+      <button class="btn-primary" id="stSearchBtn">Tìm</button>
+      <div id="stGrid" class="sticker-grid"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalAutoClassify">
+    <div class="modal-head"><h2>AI tự phân loại nhãn</h2><button class="close-btn" data-close="modalAutoClassify">×</button></div>
+    <div class="modal-body">
+      <div class="hint" style="background:var(--accent);padding:10px;border-radius:6px;font-size:12px;margin-bottom:14px">
+        AI sẽ đọc tin nhắn của khách trong từng conversation → quyết định họ quan tâm dịch vụ nào → tự gắn nhãn.<br>
+        <b>~50 phút cho 359 conversations</b>. Chạy ngầm, có thể theo dõi qua console log.
+      </div>
+      <div id="acServiceList">
+        <div class="ac-service" data-i="0" style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px">
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+            <input type="color" class="ac-color" value="#3b82f6" />
+            <input type="text" class="ac-label" value="QC Facebook" placeholder="Tên nhãn" style="flex:1" />
+            <button class="btn-icon" data-act="del-service" title="Xoá">🗑</button>
+          </div>
+          <textarea class="ac-desc" rows="3" placeholder="Mô tả dịch vụ này — AI dùng để phân biệt khách">Khách hỏi về dịch vụ chạy quảng cáo Facebook, ads, ngân sách quảng cáo, ROI, kinh doanh online, bán hàng online, hỏi giá chạy ads</textarea>
+        </div>
+        <div class="ac-service" data-i="1" style="border:1px solid var(--border);border-radius:8px;padding:10px;margin-bottom:8px">
+          <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px">
+            <input type="color" class="ac-color" value="#10b981" />
+            <input type="text" class="ac-label" value="Hệ thống Quản trị" placeholder="Tên nhãn" style="flex:1" />
+            <button class="btn-icon" data-act="del-service" title="Xoá">🗑</button>
+          </div>
+          <textarea class="ac-desc" rows="3" placeholder="Mô tả dịch vụ này — AI dùng để phân biệt khách">Khách hỏi về tự xây hệ thống quản trị quảng cáo, dashboard, no-code, vibe coding, AI agent, tool quản lý nhiều account ads, Supabase, Vercel, đang dùng Google Sheet muốn nâng cấp</textarea>
+        </div>
+      </div>
+      <button class="btn-ghost" id="acAddServiceBtn" style="font-size:12px;margin-bottom:14px"><i data-lucide="plus"></i> Thêm dịch vụ</button>
+      <button class="btn-primary block" id="acStartBtn">🚀 Bắt đầu phân loại</button>
+      <div id="acStatus" class="status-line" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalUpdateFbToken">
+    <div class="modal-head"><h2>Cập nhật Page Access Token</h2><button class="close-btn" data-close="modalUpdateFbToken">×</button></div>
+    <div class="modal-body">
+      <div class="hint" style="background:var(--accent);padding:10px;border-radius:6px;font-size:12px;margin-bottom:14px">
+        <b>Trang:</b> <span id="fpUpdatePageName">—</span><br>
+        <b>Page ID:</b> <code id="fpUpdatePageId">—</code><br>
+        <br>
+        <b>Cách lấy Page Access Token đúng quyền:</b><br>
+        <ol style="padding-left:18px;margin:6px 0">
+          <li>Vào <a href="https://developers.facebook.com/tools/explorer/" target="_blank">Graph API Explorer</a></li>
+          <li>Chọn <b>Page</b> (không phải User) → chọn Fanpage cần lấy token</li>
+          <li>Tick các quyền (Permissions):
+            <ul style="padding-left:14px">
+              <li><code>pages_messaging</code> ⭐ bắt buộc</li>
+              <li><code>pages_read_engagement</code></li>
+              <li><code>pages_read_user_content</code></li>
+              <li><code>pages_manage_metadata</code></li>
+            </ul>
+          </li>
+          <li>Bấm <b>Generate Access Token</b> → đồng ý quyền</li>
+          <li>Copy token → paste bên dưới</li>
+        </ol>
+      </div>
+      <div class="field">
+        <label>Page Access Token mới</label>
+        <textarea id="fpUpdateToken" rows="4" placeholder="EAAxxxxxxxxxxx..." style="font-family:monospace;font-size:11px"></textarea>
+      </div>
+      <button class="btn-primary block" id="fpUpdateTokenBtn" style="margin-top:10px">Cập nhật & kiểm tra quyền</button>
+      <div id="fpUpdateTokenStatus" class="status-line" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalAddFanpage">
+    <div class="modal-head"><h2>Kết nối Fanpage Facebook</h2><button class="close-btn" data-close="modalAddFanpage">×</button></div>
+    <div class="modal-body">
+      <div id="fpStep1" class="fp-step">
+        <!-- Tabs chọn cách kết nối -->
+        <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border)">
+          <button type="button" class="fp-conn-tab active" data-conn="token" style="background:transparent;border:0;border-bottom:2px solid var(--primary);padding:10px 16px;cursor:pointer;font-weight:600;color:var(--primary)">
+            ⚡ Nhập Token (Nhanh)
+          </button>
+          <button type="button" class="fp-conn-tab" data-conn="oauth" style="background:transparent;border:0;border-bottom:2px solid transparent;padding:10px 16px;cursor:pointer;color:var(--muted-foreground)">
+            🔐 Facebook Login (Chuẩn)
+          </button>
+        </div>
+
+        <!-- TAB 1: Nhập token trực tiếp -->
+        <div id="fpConnToken" class="fp-conn-pane">
+          <div style="text-align:center;padding:10px 0">
+            <i data-lucide="key" style="width:36px;height:36px;color:#1877F2"></i>
+            <h3 style="margin:8px 0 4px">Dán User Access Token của bạn</h3>
+            <p class="hint" style="font-size:12px">Cách nhanh nhất nếu bạn đã có sẵn token Meta</p>
+          </div>
+          <div class="field">
+            <label style="font-weight:600">User Access Token</label>
+            <textarea id="fpQuickToken" rows="4" placeholder="EAAxxxxxxxxxxxxxxxxxxxxx..." style="font-family:monospace;font-size:11px"></textarea>
+          </div>
+          <button class="btn-primary block" id="fpQuickConnectBtn" style="background:#1877F2;font-size:14px;padding:12px">
+            <i data-lucide="zap"></i> Lấy danh sách Fanpage
+          </button>
+          <div id="fpQuickStatus" class="status-line" style="margin-top:10px"></div>
+          <details style="margin-top:14px">
+            <summary style="font-size:12px;cursor:pointer;color:var(--muted-foreground)">💡 Cách lấy User Access Token nhanh</summary>
+            <div style="margin-top:10px;padding:10px;background:var(--accent);border-radius:6px;font-size:12px;line-height:1.6">
+              <b>Cách 1: Graph API Explorer (1 phút)</b>
+              <ol style="padding-left:18px;margin:6px 0">
+                <li>Mở <a href="https://developers.facebook.com/tools/explorer/" target="_blank">developers.facebook.com/tools/explorer</a></li>
+                <li>Click <b>User or Page</b> → <b>Get User Access Token</b></li>
+                <li>Tick các quyền: <code>pages_show_list</code>, <code>pages_messaging</code>, <code>pages_read_engagement</code>, <code>pages_manage_metadata</code></li>
+                <li>Click <b>Generate Access Token</b> → login</li>
+                <li>Copy token (chuỗi dài EAA...) → paste vào ô trên</li>
+              </ol>
+              <b>Cách 2: Từ phần mềm khác</b><br>
+              Nếu bạn đã dùng tool nào trước (Pancake, AhaChat...) có thể export token từ đó.<br>
+              <b>Lưu ý:</b> Token Graph API Explorer chỉ sống ~1-2h. Sau đó cần lấy lại.
+              Để token sống lâu (60 ngày), dùng tab "Facebook Login" bên cạnh.
+            </div>
+          </details>
+        </div>
+
+        <!-- TAB 2: OAuth Login -->
+        <div id="fpConnOauth" class="fp-conn-pane hidden">
+        <div style="text-align:center;padding:20px 0">
+          <i data-lucide="facebook" style="width:48px;height:48px;color:#1877F2"></i>
+          <h3 style="margin:14px 0 6px">Đăng nhập Facebook</h3>
+          <p class="hint" style="font-size:13px">Sau khi đăng nhập, bạn sẽ chọn Fanpage muốn kết nối.</p>
+        </div>
+        <button class="btn-primary block" id="fpLoginFbBtn" style="background:#1877F2;font-size:14px;padding:12px">
+          <i data-lucide="facebook"></i> Đăng nhập Facebook
+        </button>
+        <div id="fpLoginStatus" class="status-line" style="margin-top:10px"></div>
+        <details style="margin-top:14px">
+          <summary style="font-size:12px;cursor:pointer;color:var(--muted-foreground)">⚙️ Cấu hình Facebook App (lần đầu)</summary>
+          <div style="margin-top:10px;padding:10px;background:var(--accent);border-radius:6px;font-size:11px">
+            <p><b>Trước khi dùng Login, bạn cần tạo Facebook App 1 lần:</b></p>
+            <ol style="padding-left:20px;margin:6px 0">
+              <li>Vào <a href="https://developers.facebook.com/apps/" target="_blank">developers.facebook.com/apps</a></li>
+              <li>Tạo App → loại <b>Business</b></li>
+              <li>Add Product → <b>Facebook Login for Business</b> + <b>Messenger</b></li>
+              <li>Facebook Login → Settings → Valid OAuth Redirect URIs:<br>
+                  <code>https://ai.hc-agency.online/api/fb/oauth-callback</code></li>
+              <li>Messenger → Settings → Webhooks:<br>
+                  Callback: <code>https://ai.hc-agency.online/api/fb/webhook</code><br>
+                  Verify Token: <code>trung-voi-FB_VERIFY_TOKEN-tren-VPS</code><br>
+                  Subscribe: messages, messaging_postbacks, message_echoes</li>
+              <li>Settings → Basic → copy App ID + App Secret → paste bên dưới:</li>
+            </ol>
+            <div class="field" style="margin-top:8px">
+              <label style="font-size:11px">App ID</label>
+              <input type="text" id="fpAppId" placeholder="123456789012345" />
+            </div>
+            <div class="field">
+              <label style="font-size:11px">App Secret</label>
+              <input type="password" id="fpAppSecret" placeholder="abcdef..." />
+            </div>
+            <button class="btn-ghost" id="fpSaveAppConfigBtn" style="font-size:11px">Lưu cấu hình</button>
+            <div id="fpAppConfigStatus" class="status-line" style="font-size:11px"></div>
+          </div>
+        </details>
+        </div><!-- /fpConnOauth -->
+      </div>
+      <div id="fpStep2" class="fp-step hidden">
+        <h3 style="margin:0 0 10px">Chọn Fanpages muốn kết nối</h3>
+        <p class="hint" style="font-size:12px;margin-bottom:10px">Tick các Fanpage bạn muốn đẩy tin nhắn về app:</p>
+        <div id="fpPageOptions" style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;padding:8px"></div>
+        <button class="btn-primary block" id="fpConnectSelectedBtn" style="margin-top:14px">Kết nối các trang đã chọn</button>
+        <div id="fpConnectStatus" class="status-line"></div>
+      </div>
+    </div>
+  </div>
+
+<div class="modal hidden" id="modalSearch">
+    <div class="modal-head"><h2>Tìm trong tin nhắn</h2><button class="close-btn" data-close="modalSearch">×</button></div>
+    <div class="modal-body">
+      <input type="text" id="searchModalInput" placeholder="Nhập từ khoá tìm kiếm..." />
+      <div id="searchResults"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalPromptPreview" style="max-width:880px">
+    <div class="modal-head">
+      <h2>Prompt cuối cùng AI sẽ nhận</h2>
+      <button class="close-btn" data-close="modalPromptPreview">×</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;gap:6px;align-items:center">
+        <label style="font-size:12px;font-weight:600;margin:0">Mode:</label>
+        <button class="btn-ghost" data-prev-mode="full" style="font-size:12px;padding:4px 10px">FULL (AI Cố vấn)</button>
+        <button class="btn-ghost" data-prev-mode="short" style="font-size:12px;padding:4px 10px">SHORT (Auto-reply)</button>
+        <span id="stPromptPreviewLength" class="hint" style="font-size:11px;margin-left:auto"></span>
+      </div>
+      <textarea id="stPromptPreviewText" rows="22" readonly style="font-size:11.5px;font-family:ui-monospace,Menlo,monospace;line-height:1.5;background:var(--accent)"></textarea>
+      <div class="hint" style="font-size:11px">Đây là chính xác text AI nhận vào system prompt mỗi lần bạn gọi. Knowledge Base lấy realtime từ Sản phẩm.</div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalAutoReply" style="max-width:560px">
+    <div class="modal-head">
+      <h2>Cài đặt tự động trả lời</h2>
+      <button class="close-btn" data-close="modalAutoReply">×</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:14px">
+      <div id="arThreadName" class="hint" style="font-size:12px"></div>
+
+      <label class="ar-toggle">
+        <input type="checkbox" id="arEnabled" />
+        <span class="ar-switch"></span>
+        <span class="ar-toggle-label">Bật tự động trả lời cho hội thoại này</span>
+      </label>
+
+      <div>
+        <label style="display:block;margin-bottom:6px">Chế độ trả lời</label>
+        <div style="display:flex;gap:14px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;margin:0"><input type="radio" name="arMode" value="ai" /> AI tạo (khuyên dùng)</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;margin:0"><input type="radio" name="arMode" value="static" /> Câu cố định</label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;margin:0"><input type="radio" name="arMode" value="keyword" /> Theo từ khoá (rule cũ)</label>
+        </div>
+      </div>
+
+      <div id="arStaticBox" class="hidden">
+        <label>Nội dung trả lời cố định</label>
+        <textarea id="arStaticReply" rows="3" placeholder="VD: Bên mình đang bận, sẽ phản hồi sau ít phút nha."></textarea>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label>Delay trước khi gửi (giây)</label>
+          <div style="display:flex;gap:6px;align-items:center">
+            <input type="number" id="arDelayMin" min="0" value="3" style="width:70px" />
+            <span class="hint">đến</span>
+            <input type="number" id="arDelayMax" min="0" value="8" style="width:70px" />
+          </div>
+        </div>
+        <div>
+          <label>Tối đa reply/giờ</label>
+          <input type="number" id="arMaxPerHour" min="1" value="30" />
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label>Giờ bắt đầu</label>
+          <input type="time" id="arWorkStart" value="00:00" />
+        </div>
+        <div>
+          <label>Giờ kết thúc</label>
+          <input type="time" id="arWorkEnd" value="23:59" />
+        </div>
+      </div>
+
+      <div>
+        <label>Tạm dừng sau khi bạn vừa gửi tay (phút)</label>
+        <input type="number" id="arCooldown" min="0" value="10" />
+        <div class="hint">AI sẽ không cướp lượt nếu bạn vừa trả lời tay trong khoảng thời gian này.</div>
+      </div>
+
+      <div>
+        <label>Chỉ trả lời N tin đầu (0 = không giới hạn)</label>
+        <input type="number" id="arFirstN" min="0" max="100" value="3" />
+        <div class="hint">Khuyến nghị đặt 3 để AI tiếp nhận ban đầu, sau đó quản trị viên takeover.</div>
+      </div>
+
+      <div id="arGroupSettings" class="hidden" style="border-top:1px solid var(--border);padding-top:12px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-weight:600;font-size:13px">Tuỳ chọn riêng cho nhóm</div>
+        <div class="hint" style="color:#b45309">Để bật AI trong nhóm, chọn @mention, whitelist user, hoặc chủ động bật reply toàn bộ tin nhắn.</div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="arReplyAllGroup" /> Reply toàn bộ tin nhắn trong nhóm
+        </label>
+        <div class="hint">Khi bật tuỳ chọn này, AI sẽ bỏ qua @mention/whitelist và xử lý mọi tin trong nhóm.</div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="arOnlyMention" /> Chỉ reply khi bị @mention
+        </label>
+        <div>
+          <label>Whitelist user (mỗi userId 1 dòng — để trống = mọi người)</label>
+          <textarea id="arAllowedUsers" rows="3" placeholder="VD:&#10;123456789&#10;987654321"></textarea>
+          <div class="hint">Khi có danh sách, AI chỉ reply khi tin từ các userId này.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;justify-content:space-between;border-top:1px solid var(--border);padding-top:14px;margin-top:4px">
+        <button class="btn-ghost danger" id="arDeleteBtn"><i data-lucide="trash-2"></i> Xoá cài đặt</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn-ghost" data-close="modalAutoReply">Huỷ</button>
+          <button class="btn-primary" id="arSaveBtn"><i data-lucide="save"></i> Lưu</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalLabels" style="max-width:520px">
+    <div class="modal-head">
+      <h2>Quản lý nhãn</h2>
+      <button class="close-btn" data-close="modalLabels">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="lbList" style="display:flex;flex-direction:column;gap:6px"></div>
+      <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+        <label style="font-size:12px;color:var(--muted-foreground);margin-bottom:6px;display:block">Thêm thẻ mới</label>
+        <div style="display:flex;gap:6px;align-items:center">
+          <input type="color" id="lbNewColor" value="#fbbf24" style="width:38px;height:32px;padding:2px;cursor:pointer" />
+          <input type="text" id="lbNewName" placeholder="VD: Khách tiềm năng" style="flex:1" maxlength="50" />
+          <button class="btn-primary" id="lbAddBtn">Thêm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="modalProduct" style="max-width:680px">
+    <div class="modal-head">
+      <h2 id="mpTitle">Sản phẩm</h2>
+      <button class="close-btn" data-close="modalProduct">×</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:10px">
+      <label>Mã định danh nội bộ (không sửa được sau khi tạo)</label>
+      <input id="mpId" placeholder="Ví dụ: dich-vu-facebook" />
+      <label>Tên sản phẩm *</label>
+      <input id="mpName" placeholder="Ví dụ: Dịch vụ Quảng cáo Facebook" />
+      <label>Khách hàng mục tiêu</label>
+      <textarea id="mpTarget" rows="2" placeholder="Ví dụ: Chủ shop, doanh nghiệp vừa và nhỏ, ngân sách quảng cáo từ 5 triệu/tháng"></textarea>
+      <label>Điểm khác biệt</label>
+      <textarea id="mpUsp" rows="3" placeholder="Ví dụ: Trọn gói cài đặt mã theo dõi, chạy quảng cáo, tối ưu — cam kết hiệu quả minh bạch"></textarea>
+      <label>Ghi chú giá (chỉ dùng nội bộ — AI không nói ra với khách)</label>
+      <textarea id="mpPricing" rows="2" placeholder="Ví dụ: 3-8 triệu/tháng tuỳ ngân sách. Cam kết tối thiểu 3 tháng. KHÔNG báo giá công khai."></textarea>
+      <label>Từ khoá nhận diện (cách nhau bằng dấu phẩy)</label>
+      <input id="mpKeywords" placeholder="Ví dụ: quảng cáo, facebook, chạy ads, ngân sách marketing" />
+      <label>Câu hỏi tìm hiểu nhu cầu (mỗi câu một dòng)</label>
+      <textarea id="mpQQ" rows="4" placeholder="Bạn đang chạy quảng cáo ngành gì?&#10;Ngân sách quảng cáo hàng tháng khoảng bao nhiêu?"></textarea>
+      <label>Kịch bản chốt sale</label>
+      <textarea id="mpClose" rows="3" placeholder="Ví dụ: AIDA — hỏi vấn đề → giới thiệu giải pháp → đưa ví dụ thực tế → mời rà soát miễn phí"></textarea>
+      <label>Phản đối thường gặp (mỗi dòng: câu phản đối | cách trả lời)</label>
+      <textarea id="mpObj" rows="5" placeholder="Đắt quá | Bên mình tính theo hiệu quả, không đạt thì bên mình lỗ&#10;Tự chạy được | Tự chạy được thì quá tốt..."></textarea>
+      <div style="display:flex;gap:12px;align-items:center">
+        <div style="flex:1"><label style="display:block">Độ ưu tiên (1 = cao nhất)</label><input id="mpPriority" type="number" min="1" value="99" /></div>
+        <label style="flex:1;display:flex;align-items:center;gap:6px;cursor:pointer;margin-top:18px"><input type="checkbox" id="mpEnabled" checked /> Cho AI sử dụng sản phẩm này</label>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+        <button class="btn-ghost" data-close="modalProduct">Huỷ</button>
+        <button class="btn-primary" id="mpSaveBtn">Lưu</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="licenseGate" class="license-gate hidden" aria-modal="true" role="dialog">
+  <div class="license-card">
+    <div class="license-head">
+      <div class="license-icon"><i data-lucide="key-round"></i></div>
+      <div>
+        <h2>Kích hoạt phần mềm</h2>
+        <p id="licenseGateMsg">Nhập mã license để sử dụng bản cài đặt này.</p>
+      </div>
+    </div>
+    <label for="licenseKeyInput">Mã license</label>
+    <div class="license-row">
+      <input id="licenseKeyInput" autocomplete="off" spellcheck="false" placeholder="HC-XXXXX-XXXXX-XXXXX" />
+      <button class="btn-primary" id="licenseActivateBtn"><i data-lucide="check"></i> Kích hoạt</button>
+    </div>
+    <div class="license-meta" id="licenseMeta"></div>
+    <div class="license-actions">
+      <button class="btn-ghost" id="licenseRefreshBtn"><i data-lucide="refresh-cw"></i> Kiểm tra lại</button>
+      <span id="desktopUpdateStatus"></span>
+    </div>
+  </div>
+</div>
+
+<div id="toastWrap"></div>
+
+<script src="/chat.js"></script>
+</body>
+</html>

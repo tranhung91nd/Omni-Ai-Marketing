@@ -1,0 +1,43 @@
+name: Build Windows Installer
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check syntax
+        run: npm run check
+
+      - name: Build installer
+        run: npm run build:win
+        env:
+          LICENSE_SERVER_URL: https://ai.hc-agency.online/license-api
+          UPDATE_CHECK_URL: https://ai.hc-agency.online/license-api/api/updates/check
+          UPDATE_FEED_URL: https://ai.hc-agency.online/downloads/zalo-agent/
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HC-Zalo-Agent-Windows
+          path: |
+            release/*.exe
+            release/latest.yml
+            release/*.blockmap

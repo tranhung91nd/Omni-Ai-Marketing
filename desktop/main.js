@@ -1,0 +1,227 @@
+const fs = require('fs');
+const http = require('http');
+const net = require('net');
+const path = require('path');
+const { fork } = require('child_process');
+
+const { app, BrowserWindow, Menu, dialog, shell } = require('electron');
+const { autoUpdater } = require('electron-updater');
+
+const config = require('./config');
+
+let mainWindow = null;
+let serverProc = null;
+let localUrl = '';
+let updateFeedConfigured = false;
+
+function getFreePort(startPort) {
+  return new Promise((resolve) => {
+    const srv = net.createServer();
+    srv.unref();
+    srv.on('error', () => resolve(getFreePort(startPort + 1)));
+    srv.listen(startPort, '127.0.0.1', () => {
+      const { port } = srv.address();
+      srv.close(() => resolve(port));
+    });
+  });
+}
+
+function requestHealth(url, timeoutMs = 1000) {
+  return new Promise((resolve, reject) => {
+    const req = http.get(`${url}/api/health`, (res) => {
+      res.resume();
+      resolve(res.statusCode && res.statusCode < 500);
+    });
+    req.setTimeout(timeoutMs, () => {
+      req.destroy(new Error('timeout'));
+    });
+    req.on('error', reject);
+  });
+}
+
+async function waitForServer(url) {
+  const deadline = Date.now() + 30000;
+  while (Date.now() < deadline) {
+    try {
+      if (await requestHealth(url)) return;
+    } catch {}
+    await new Promise(r => setTimeout(r, 400));
+  }
+  throw new Error('Không khởi động được server nội bộ');
+}
+
+function getZaloAgentBin() {
+  const exeName = process.platform === 'win32' ? 'zalo-agent.exe' : 'zalo-agent';
+  const packagedBin = path.join(process.resourcesPath || '', 'bin', exeName);
+  if (fs.existsSync(packagedBin)) return packagedBin;
+  return process.env.ZALO_AGENT_BIN || exeName;
+}
+
+async function startServer() {
+  const port = await getFreePort(Number(process.env.PORT || 3333));
+  const qrPort = await getFreePort(Number(process.env.QR_PORT || 18927));
+  const userData = app.getPath('userData');
+  const uploadsDir = path.join(userData, 'uploads');
+  fs.mkdirSync(uploadsDir, { recursive: true });
+
+  const env = {
+    ...process.env,
+    DESKTOP_MODE: '1',
+    ELECTRON_RUN_AS_NODE: '1',
+    HOST: '127.0.0.1',
+    PORT: String(port),
+    QR_PORT: String(qrPort),
+    LICENSE_ENFORCE: '1',
+    LICENSE_APP_ID: process.env.LICENSE_APP_ID || config.appId || 'hc-zalo-agent',
+    LICENSE_APP_VERSION: app.getVersion(),
+    LICENSE_SERVER_URL: process.env.LICENSE_SERVER_URL || config.licenseServerUrl || '',
+    UPDATE_CHECK_URL: process.env.UPDATE_CHECK_URL || config.updateCheckUrl || '',
+    UPDATE_FEED_URL: process.env.UPDATE_FEED_URL || config.updateFeedUrl || '',
+    ZALO_DATA_DIR: userData,
+    ZALO_UPLOADS_DIR: uploadsDir,
+    ZALO_AGENT_BIN: getZaloAgentBin(),
+  };
+
+  const serverPath = path.join(__dirname, '..', 'server.js');
+  serverProc = fork(serverPath, [], {
+    cwd: path.join(__dirname, '..'),
+    env,
+    execPath: process.execPath,
+    stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
+  });
+  serverProc.stdout?.on('data', d => console.log(`[server] ${String(d).trim()}`));
+  serverProc.stderr?.on('data', d => console.error(`[server] ${String(d).trim()}`));
+  serverProc.on('exit', (code) => {
+    if (!app.isQuitting) {
+      dialog.showErrorBox('Server đã dừng', `Server nội bộ thoát với mã ${code ?? 'unknown'}.`);
+      app.quit();
+    }
+  });
+
+  localUrl = `http://127.0.0.1:${port}`;
+  await waitForServer(localUrl);
+  return localUrl;
+}
+
+function createMenu() {
+  const template = [
+    {
+      label: 'Ứng dụng',
+      submenu: [
+        { label: 'Kiểm tra cập nhật', click: () => checkForUpdates(true) },
+        { label: 'Mở thư mục dữ liệu', click: () => shell.openPath(app.getPath('userData')) },
+        { type: 'separator' },
+        { role: 'reload', label: 'Tải lại' },
+        { role: 'quit', label: 'Thoát' },
+      ],
+    },
+    {
+      label: 'Cửa sổ',
+      submenu: [
+        { role: 'minimize', label: 'Thu nhỏ' },
+        { role: 'togglefullscreen', label: 'Toàn màn hình' },
+      ],
+    },
+  ];
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+function setupUpdater() {
+  const feedUrl = process.env.UPDATE_FEED_URL || config.updateFeedUrl || '';
+  updateFeedConfigured = Boolean(feedUrl);
+  if (updateFeedConfigured) autoUpdater.setFeedURL({ provider: 'generic', url: feedUrl });
+  autoUpdater.autoDownload = false;
+  autoUpdater.on('update-available', async (info) => {
+    const result = await dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      buttons: ['Tải bản mới', 'Để sau'],
+      defaultId: 0,
+      cancelId: 1,
+      title: 'Có bản cập nhật',
+      message: `Có phiên bản ${info.version}. Bạn muốn tải ngay không?`,
+    });
+    if (result.response === 0) autoUpdater.downloadUpdate();
+  });
+  autoUpdater.on('update-downloaded', async () => {
+    const result = await dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      buttons: ['Cài và mở lại', 'Để sau'],
+      defaultId: 0,
+      cancelId: 1,
+      title: 'Đã tải cập nhật',
+      message: 'Bản cập nhật đã sẵn sàng.',
+    });
+    if (result.response === 0) autoUpdater.quitAndInstall();
+  });
+  autoUpdater.on('error', (e) => console.warn('[updater]', e.message));
+}
+
+async function checkForUpdates(showNoUpdate = false) {
+  if (!app.isPackaged) {
+    if (showNoUpdate) dialog.showMessageBox(mainWindow, { message: 'Chế độ dev không kiểm tra auto update.' });
+    return;
+  }
+  if (!updateFeedConfigured) {
+    if (showNoUpdate) dialog.showMessageBox(mainWindow, { message: 'Chưa cấu hình updateFeedUrl trong desktop/config.js.' });
+    return;
+  }
+  try {
+    const result = await autoUpdater.checkForUpdates();
+    if (showNoUpdate && !result?.updateInfo?.version) {
+      dialog.showMessageBox(mainWindow, { message: 'Chưa có bản cập nhật mới.' });
+    }
+  } catch (e) {
+    if (showNoUpdate) dialog.showErrorBox('Lỗi cập nhật', e.message);
+  }
+}
+
+function openMainWindow(url) {
+  if (mainWindow) {
+    mainWindow.focus();
+    return;
+  }
+  mainWindow = new BrowserWindow({
+    width: 1440,
+    height: 920,
+    minWidth: 1100,
+    minHeight: 720,
+    title: 'HC Zalo Agent',
+    webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  mainWindow.loadURL(`${url}/chat.html`);
+  mainWindow.on('closed', () => { mainWindow = null; });
+}
+
+async function createWindow() {
+  const url = localUrl || await startServer();
+  openMainWindow(url);
+}
+
+app.whenReady().then(async () => {
+  setupUpdater();
+  createMenu();
+  try {
+    await createWindow();
+    checkForUpdates(false);
+  } catch (e) {
+    dialog.showErrorBox('Không mở được ứng dụng', e.message);
+    app.quit();
+  }
+});
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
+
+app.on('before-quit', () => {
+  app.isQuitting = true;
+  if (serverProc && !serverProc.killed) serverProc.kill();
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
+});

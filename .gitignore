@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Database files (data, không phải source code)
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# User uploads
+uploads/
+
+# Backups
+backups/
+
+# CodeGraph index (file DB của codegraph)
+.codegraph/
+
+# Claude local settings
+.claude/settings.local.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Env files
+.env*
+!.env.example
+
+# Build outputs
+release/
+dist/
+out/
+
+# Local deployment script
+deploy.sh
+
+# IDE
+.vscode/
+.idea/
+
+# Local tool state
+.codex/
+.claude/
