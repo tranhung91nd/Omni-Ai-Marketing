@@ -81,6 +81,8 @@ Tren VPS hien tai, license server nen chay bang PM2 sau Nginx:
 
 ```bash
 export LICENSE_SERVER_SECRET="doi-chuoi-bi-mat-nay"
+export LICENSE_ADMIN_TOKEN="doi-token-quan-tri-license"
+export LICENSE_DEFAULT_DAYS="365"
 export LICENSE_SERVER_DB="/var/lib/zalo-agent-license/licenses.json"
 export LICENSE_SERVER_BASE_PATH="/license-api"
 export LICENSE_SERVER_PORT="5050"
@@ -91,6 +93,12 @@ Public URL:
 
 ```text
 https://ai.hc-agency.online/license-api/api/health
+```
+
+Trang tao license:
+
+```text
+https://ai.hc-agency.online/license-api/admin
 ```
 
 Tao ma license:
