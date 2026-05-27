@@ -12,6 +12,7 @@
     "desktop": "electron .",
     "prebuild:win": "node scripts/preflight-windows.js",
     "build:win": "npm run prebuild:win && electron-builder --win nsis --x64",
+    "build:mac": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dmg --arm64",
     "license-server": "node license-server/server.js",
     "license:create": "node license-server/create-license.js",
     "check": "node --check server.js && node --check db.js && node --check zalo-manager.js && node --check desktop/config.js && node --check desktop/license.js && node --check desktop/update-client.js && node --check desktop/main.js && node --check license-server/server.js && node --check license-server/create-license.js && node --check scripts/preflight-windows.js && node --check public/chat.js"
@@ -53,6 +54,13 @@
         "nsis"
       ],
       "artifactName": "HC-Zalo-Agent-${version}-Setup.${ext}"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "artifactName": "HC-Zalo-Agent-${version}-Mac-${arch}.${ext}",
+      "category": "public.app-category.business"
     },
     "nsis": {
       "oneClick": false,

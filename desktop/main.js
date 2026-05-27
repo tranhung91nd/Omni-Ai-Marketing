@@ -57,6 +57,21 @@ function getZaloAgentBin() {
   return process.env.ZALO_AGENT_BIN || exeName;
 }
 
+function getServerPaths() {
+  const appRoot = path.join(__dirname, '..');
+  if (!app.isPackaged) {
+    return {
+      serverPath: path.join(appRoot, 'server.js'),
+      cwd: appRoot,
+    };
+  }
+
+  return {
+    serverPath: path.join(process.resourcesPath, 'app.asar', 'server.js'),
+    cwd: process.resourcesPath,
+  };
+}
+
 async function startServer() {
   const port = await getFreePort(Number(process.env.PORT || 3333));
   const qrPort = await getFreePort(Number(process.env.QR_PORT || 18927));
@@ -82,9 +97,9 @@ async function startServer() {
     ZALO_AGENT_BIN: getZaloAgentBin(),
   };
 
-  const serverPath = path.join(__dirname, '..', 'server.js');
+  const { serverPath, cwd } = getServerPaths();
   serverProc = fork(serverPath, [], {
-    cwd: path.join(__dirname, '..'),
+    cwd,
     env,
     execPath: process.execPath,
     stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
