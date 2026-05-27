@@ -131,6 +131,21 @@ function createMenu() {
       ],
     },
     {
+      label: 'Sửa',
+      submenu: [
+        { role: 'undo', label: 'Hoàn tác' },
+        { role: 'redo', label: 'Làm lại' },
+        { type: 'separator' },
+        { role: 'cut', label: 'Cắt' },
+        { role: 'copy', label: 'Sao chép' },
+        { role: 'paste', label: 'Dán' },
+        { role: 'pasteAndMatchStyle', label: 'Dán không định dạng' },
+        { role: 'delete', label: 'Xóa' },
+        { type: 'separator' },
+        { role: 'selectAll', label: 'Chọn tất cả' },
+      ],
+    },
+    {
       label: 'Cửa sổ',
       submenu: [
         { role: 'minimize', label: 'Thu nhỏ' },
@@ -139,6 +154,23 @@ function createMenu() {
     },
   ];
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+}
+
+function attachEditableContextMenu(win) {
+  win.webContents.on('context-menu', (_event, params) => {
+    if (!params.isEditable) return;
+    const flags = params.editFlags || {};
+    Menu.buildFromTemplate([
+      { role: 'undo', label: 'Hoàn tác', enabled: Boolean(flags.canUndo) },
+      { role: 'redo', label: 'Làm lại', enabled: Boolean(flags.canRedo) },
+      { type: 'separator' },
+      { role: 'cut', label: 'Cắt', enabled: Boolean(flags.canCut) },
+      { role: 'copy', label: 'Sao chép', enabled: Boolean(flags.canCopy) },
+      { role: 'paste', label: 'Dán', enabled: Boolean(flags.canPaste) },
+      { type: 'separator' },
+      { role: 'selectAll', label: 'Chọn tất cả', enabled: Boolean(flags.canSelectAll) },
+    ]).popup({ window: win });
+  });
 }
 
 function setupUpdater() {
@@ -208,6 +240,7 @@ function openMainWindow(url) {
     },
   });
   mainWindow.loadURL(`${url}/chat.html`);
+  attachEditableContextMenu(mainWindow);
   mainWindow.on('closed', () => { mainWindow = null; });
 }
 

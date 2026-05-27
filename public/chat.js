@@ -66,6 +66,8 @@ function showLicenseGate(status, message) {
     if (status?.warning) parts.push(`Cảnh báo: ${status.warning}`);
     meta.textContent = parts.join(' | ');
   }
+  const input = $('#licenseKeyInput');
+  if (input) setTimeout(() => input.focus(), 0);
   if (window.lucide) window.lucide.createIcons();
 }
 
