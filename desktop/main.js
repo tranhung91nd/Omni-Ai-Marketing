@@ -13,6 +13,7 @@ let mainWindow = null;
 let serverProc = null;
 let localUrl = '';
 let updateFeedConfigured = false;
+let serverRunningInMainProcess = false;
 
 function getFreePort(startPort) {
   return new Promise((resolve) => {
@@ -72,6 +73,13 @@ function getServerPaths() {
   };
 }
 
+function startServerInMainProcess(serverPath, env) {
+  if (serverRunningInMainProcess) return;
+  serverRunningInMainProcess = true;
+  Object.assign(process.env, env);
+  require(serverPath);
+}
+
 async function startServer() {
   const port = await getFreePort(Number(process.env.PORT || 3333));
   const qrPort = await getFreePort(Number(process.env.QR_PORT || 18927));
@@ -97,17 +105,25 @@ async function startServer() {
     ZALO_AGENT_BIN: getZaloAgentBin(),
   };
 
+  localUrl = `http://127.0.0.1:${port}`;
   const { serverPath, cwd } = getServerPaths();
   serverProc = fork(serverPath, [], {
     cwd,
     env,
-    execPath: process.execPath,
+    execPath: app.getPath('exe'),
     stdio: ['ignore', 'pipe', 'pipe', 'ipc'],
   });
   serverProc.stdout?.on('data', d => console.log(`[server] ${String(d).trim()}`));
   serverProc.stderr?.on('data', d => console.error(`[server] ${String(d).trim()}`));
-  serverProc.on('exit', (code) => {
+  serverProc.on('error', (e) => {
     if (!app.isQuitting) {
+      console.warn('[server] child process failed; falling back to in-process server:', e.message);
+      serverProc = null;
+      startServerInMainProcess(serverPath, env);
+    }
+  });
+  serverProc.on('exit', (code) => {
+    if (!app.isQuitting && !serverRunningInMainProcess) {
       dialog.showErrorBox('Server đã dừng', `Server nội bộ thoát với mã ${code ?? 'unknown'}.`);
       app.quit();
     }
