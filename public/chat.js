@@ -17,6 +17,7 @@ const state = {
   license: null,
 };
 const PAGE_SIZE = 50;
+const DEFAULT_ACCOUNT_PROXY = '1.2.3.4:8080';
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
@@ -50,10 +51,39 @@ function licenseMessage(status, fallback) {
   return 'Nhập mã license để sử dụng bản cài đặt này.';
 }
 
+function formatLicenseDate(expiresAt) {
+  if (!expiresAt) return 'Không giới hạn';
+  return new Date(expiresAt).toLocaleDateString('vi-VN');
+}
+
+function updateLicenseExpiryBadge(status) {
+  const badge = $('#licenseExpiryBadge');
+  const text = $('#licenseExpiryText');
+  if (!badge || !text) return;
+  badge.classList.remove('warn', 'expired');
+  if (!status?.enforced) {
+    badge.classList.add('hidden');
+    return;
+  }
+  const expiresAt = status?.license?.expiresAt;
+  const expired = Boolean(expiresAt && new Date(expiresAt).getTime() <= Date.now());
+  const daysLeft = expiresAt ? Math.ceil((new Date(expiresAt).getTime() - Date.now()) / 86400000) : null;
+  if (status.active) {
+    text.textContent = `HSD: ${formatLicenseDate(expiresAt)}`;
+    if (daysLeft !== null && daysLeft <= 7) badge.classList.add('warn');
+  } else {
+    text.textContent = expired ? 'License đã hết hạn' : 'License chưa kích hoạt';
+    if (expired) badge.classList.add('expired');
+  }
+  badge.classList.remove('hidden');
+  if (window.lucide) window.lucide.createIcons();
+}
+
 function showLicenseGate(status, message) {
   const gate = $('#licenseGate');
   if (!gate) return;
   state.license = status || state.license;
+  updateLicenseExpiryBadge(state.license);
   gate.classList.remove('hidden');
   const msg = $('#licenseGateMsg');
   const meta = $('#licenseMeta');
@@ -62,7 +92,7 @@ function showLicenseGate(status, message) {
     const parts = [];
     if (status?.machineId) parts.push(`Mã máy: ${status.machineId}`);
     if (status?.license?.customer) parts.push(`Khách hàng: ${status.license.customer}`);
-    if (status?.license?.expiresAt) parts.push(`Hết hạn: ${new Date(status.license.expiresAt).toLocaleDateString('vi-VN')}`);
+    if (status?.license?.expiresAt) parts.push(`Hết hạn: ${formatLicenseDate(status.license.expiresAt)}`);
     if (status?.warning) parts.push(`Cảnh báo: ${status.warning}`);
     meta.textContent = parts.join(' | ');
   }
@@ -80,6 +110,7 @@ async function refreshLicenseStatus(showOk = false) {
   try {
     const status = await fetch('/api/license/status').then(r => r.json());
     state.license = status;
+    updateLicenseExpiryBadge(status);
     if (!status.enforced || status.active) {
       hideLicenseGate();
       if (showOk && status.enforced) toast('License hợp lệ', 'ok');
@@ -110,6 +141,7 @@ async function activateLicenseFromGate() {
       return toast('Kích hoạt thất bại: ' + (r.error || 'License không hợp lệ'), 'err');
     }
     state.license = r;
+    updateLicenseExpiryBadge(r);
     hideLicenseGate();
     toast('Kích hoạt thành công', 'ok');
     await loadAccounts();
@@ -2567,6 +2599,8 @@ function resetAddAccModal() {
   $('#addAccStatus').textContent = '';
   $('#addAccStatus').className = 'status-line';
   $('#startQrBtn').disabled = false;
+  const proxyInput = $('#addAccProxy');
+  if (proxyInput && !proxyInput.value.trim()) proxyInput.value = DEFAULT_ACCOUNT_PROXY;
 }
 
 async function startQRLogin() {

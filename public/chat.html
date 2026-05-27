@@ -123,6 +123,9 @@
     <button class="tb-btn" id="newAccBtn" title="Thêm tài khoản Zalo">
       <i data-lucide="plus"></i><span>Thêm tài khoản</span>
     </button>
+    <div class="license-badge hidden" id="licenseExpiryBadge" title="Thời hạn license">
+      <i data-lucide="calendar-clock"></i><span id="licenseExpiryText"></span>
+    </div>
     <div class="tb-divider"></div>
     <button class="tb-btn" id="themeToggleBtn" title="Chuyển light/dark">
       <i data-lucide="sun"></i>
@@ -1177,7 +1180,7 @@
       <label>Tên gợi nhớ (tuỳ chọn)</label>
       <input type="text" id="addAccName" placeholder="VD: Acc HC Quảng Cáo 1" />
       <label>Proxy (khuyến nghị — mỗi tài khoản 1 proxy riêng)</label>
-      <input type="text" id="addAccProxy" placeholder="host:port:user:pass  hoặc  http://user:pass@host:port" />
+      <input type="text" id="addAccProxy" value="1.2.3.4:8080" placeholder="host:port:user:pass  hoặc  http://user:pass@host:port" />
       <div class="hint" style="margin-top:-4px;font-size:11px;color:var(--muted-foreground)">Để trống = login bằng IP của VPS. Có proxy giúp tránh Zalo phát hiện đa tài khoản cùng IP.</div>
       <div class="row">
         <button class="btn-primary" id="startQrBtn">Bắt đầu, hiện QR</button>

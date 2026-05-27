@@ -146,6 +146,15 @@ body.page-active.ai-overlay #aiPanel {
 }
 .tb-btn:hover { background: var(--accent); color: var(--accent-foreground); }
 .tb-btn .lucide { width: 16px; height: 16px; }
+.license-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 9px; border: 1px solid var(--border);
+  border-radius: 999px; background: var(--card);
+  color: var(--muted-foreground); font-size: 12px; white-space: nowrap;
+}
+.license-badge .lucide { width: 14px; height: 14px; color: var(--primary); }
+.license-badge.warn { border-color: var(--warning); color: var(--foreground); }
+.license-badge.expired { border-color: var(--destructive); color: var(--destructive); }
 #sidebarToggleBtn {
   border: 1px solid var(--border);
   color: var(--foreground);
