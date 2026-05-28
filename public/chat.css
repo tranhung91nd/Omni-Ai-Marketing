@@ -68,7 +68,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   display: grid;
-  grid-template-columns: 248px 320px 1fr 320px;
+  grid-template-columns: 248px minmax(0, 320px) minmax(0, 1fr) 320px;
   grid-template-rows: 56px 1fr;
   grid-template-areas:
     "navrail topbar  topbar  topbar"
@@ -77,31 +77,31 @@ body {
   font-size: 14px; line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
-body.nav-collapsed { grid-template-columns: 64px 320px 1fr 320px; }
+body.nav-collapsed { grid-template-columns: 64px minmax(0, 320px) minmax(0, 1fr) 320px; }
 body.rightbar-closed {
-  grid-template-columns: 248px 320px 1fr;
+  grid-template-columns: 248px minmax(0, 320px) minmax(0, 1fr);
   grid-template-areas:
     "navrail topbar  topbar"
     "navrail leftbar main";
 }
-body.rightbar-closed.nav-collapsed { grid-template-columns: 64px 320px 1fr; }
+body.rightbar-closed.nav-collapsed { grid-template-columns: 64px minmax(0, 320px) minmax(0, 1fr); }
 body.ai-open {
-  grid-template-columns: 248px 320px 1fr 380px;
+  grid-template-columns: 248px minmax(0, 320px) minmax(0, 1fr) 380px;
   grid-template-areas:
     "navrail topbar  topbar  topbar"
     "navrail leftbar main    aipanel";
 }
-body.ai-open.nav-collapsed { grid-template-columns: 64px 320px 1fr 380px; }
-body.ai-open.rightbar-closed { grid-template-columns: 248px 320px 1fr 380px; }
+body.ai-open.nav-collapsed { grid-template-columns: 64px minmax(0, 320px) minmax(0, 1fr) 380px; }
+body.ai-open.rightbar-closed { grid-template-columns: 248px minmax(0, 320px) minmax(0, 1fr) 380px; }
 /* Khi mở AI panel → ẨN rightbar để tránh fallback xuống cuối page */
 body.ai-open #rightbar { display: none; }
 body.page-active {
-  grid-template-columns: 248px 1fr;
+  grid-template-columns: 248px minmax(0, 1fr);
   grid-template-areas:
     "navrail topbar"
     "navrail main";
 }
-body.page-active.nav-collapsed { grid-template-columns: 64px 1fr; }
+body.page-active.nav-collapsed { grid-template-columns: 64px minmax(0, 1fr); }
 body.page-active #leftbar, body.page-active #rightbar, body.page-active #aiPanel { display: none; }
 /* AI panel ở chế độ overlay (khi đang ở page Fanpage / Settings / ...) */
 body.page-active.ai-overlay #aiPanel {
@@ -135,8 +135,11 @@ body.page-active.ai-overlay #aiPanel {
   padding: 0 16px;
   background: var(--background);
   border-bottom: 1px solid var(--border);
+  min-width: 0;
 }
-.tb-left, .tb-right { display: flex; align-items: center; gap: 6px; }
+.tb-left, .tb-right { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.tb-left { flex: 1 1 auto; }
+.tb-right { flex: 0 0 auto; }
 .tb-btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 6px;
   background: transparent; border: none; cursor: pointer;
@@ -162,7 +165,10 @@ body.page-active.ai-overlay #aiPanel {
 }
 #sidebarToggleBtn:hover { background: var(--accent); color: var(--accent-foreground); }
 #sidebarToggleBtn .lucide { width: 18px; height: 18px; }
-.tb-title { font-size: 13px; font-weight: 500; color: var(--muted-foreground); margin-left: 6px; }
+.tb-title {
+  font-size: 13px; font-weight: 500; color: var(--muted-foreground); margin-left: 6px;
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .tb-divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; }
 
 /* ==================== Buttons & inputs ==================== */
@@ -501,6 +507,7 @@ body.nav-collapsed .nav-bottom { margin-top: 4px !important; padding-top: 4px; b
   grid-area: main;
   display: flex; flex-direction: column; overflow: hidden;
   background: var(--background);
+  min-width: 0;
 }
 #chatHeader {
   display: flex; align-items: center; gap: 12px; padding: 10px 18px;
@@ -622,27 +629,37 @@ body.nav-collapsed .nav-bottom { margin-top: 4px !important; padding-top: 4px; b
   display: flex; flex-direction: column;
   background: oklch(0.965 0.008 80);
   overflow: hidden;
+  min-width: 0;
 }
 .dark .page-view { background: oklch(0.13 0.02 45); }
 .page-head {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 28px; background: var(--card); border-bottom: 1px solid var(--border);
   box-shadow: var(--shadow-sm);
+  gap: 12px;
+  min-width: 0;
 }
-.page-title { display: flex; align-items: center; gap: 10px; }
-.page-title .lucide { width: 20px; height: 20px; color: var(--primary); }
-.page-title h1 { font-size: 18px; margin: 0; font-weight: 700; letter-spacing: -0.01em; }
-.page-actions { display: flex; gap: 10px; }
+.page-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.page-title .lucide { width: 20px; height: 20px; color: var(--primary); flex-shrink: 0; }
+.page-title h1 {
+  font-size: 18px; margin: 0; font-weight: 700; letter-spacing: -0.01em;
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.page-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; flex-shrink: 0; }
 .page-actions .btn-ghost, .page-actions .btn-primary { padding: 8px 18px; font-weight: 500; }
 
 .page-body {
   flex: 1; overflow-y: auto; padding: 24px 32px;
   display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 24px;
   max-width: 1400px; margin: 0 auto; width: 100%;
+  min-width: 0;
 }
 /* Action directExecute (rời nhóm, ...): không có form settings → list center 1 cột */
 .page-body.single-col { grid-template-columns: minmax(0, 1fr); max-width: 720px; }
-.page-body-list { flex: 1; overflow-y: auto; padding: 24px 32px; max-width: 1600px; margin: 0 auto; width: 100%; }
+.page-body-list {
+  flex: 1; overflow-y: auto; overflow-x: hidden; padding: 24px 32px;
+  max-width: 1600px; margin: 0 auto; width: 100%; min-width: 0;
+}
 
 /* Settings page */
 .settings-body { max-width: 960px !important; }
@@ -801,8 +818,12 @@ body.nav-collapsed .nav-bottom { margin-top: 4px !important; padding-top: 4px; b
   background: var(--card); border: 1px solid var(--border);
   padding: 1px 5px; border-radius: 4px; font-size: 11.5px;
 }
-.camp-table-wrap { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
-.camp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.camp-table-wrap {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow-x: auto; overflow-y: hidden; box-shadow: var(--shadow-sm);
+  max-width: 100%; min-width: 0;
+}
+.camp-table { width: 100%; min-width: 920px; border-collapse: collapse; font-size: 13px; }
 .camp-table thead { background: oklch(from var(--primary) l c h / 0.04); }
 .camp-table th { padding: 12px 14px; text-align: left; font-weight: 600; color: var(--muted-foreground); font-size: 12px; letter-spacing: 0.02em; border-bottom: 1px solid var(--border); }
 .camp-table td { padding: 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
@@ -1943,19 +1964,57 @@ label.check input[type="checkbox"] { width: auto; margin: 0; cursor: pointer; }
 
 /* ==================== Responsive ==================== */
 @media (max-width: 1400px) {
-  body { grid-template-columns: 64px 300px 1fr 300px; }
-  body.rightbar-closed { grid-template-columns: 64px 300px 1fr; }
+  body { grid-template-columns: 64px minmax(0, 300px) minmax(0, 1fr) 300px; }
+  body.rightbar-closed { grid-template-columns: 64px minmax(0, 300px) minmax(0, 1fr); }
+  body.page-active,
+  body.page-active.rightbar-closed,
+  body.page-active.ai-open,
+  body.page-active.nav-collapsed {
+    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-areas:
+      "navrail topbar"
+      "navrail main";
+  }
   body .nav-lb, body .nav-ar, body .nav-sub, body .brand-name, body .nav-section-label { display: none; }
   body .nav-head { justify-content: center; padding: 9px 0; }
   body .nav-brand { justify-content: center; padding: 0; }
 }
 @media (max-width: 1100px) {
-  body { grid-template-columns: 64px 280px 1fr; grid-template-areas: "navrail topbar topbar" "navrail leftbar main"; }
+  body { grid-template-columns: 64px minmax(0, 280px) minmax(0, 1fr); grid-template-areas: "navrail topbar topbar" "navrail leftbar main"; }
   #rightbar { display: none; }
   #rightbar.open { display: block; position: fixed; right: 0; top: 56px; bottom: 0; width: 320px; z-index: 50; box-shadow: var(--shadow-lg); }
+  body.page-active,
+  body.page-active.rightbar-closed,
+  body.page-active.ai-open,
+  body.page-active.nav-collapsed {
+    grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-areas:
+      "navrail topbar"
+      "navrail main";
+  }
+}
+@media (max-width: 900px) {
+  #topbar { gap: 8px; padding: 0 10px; }
+  .tb-right .tb-btn span { display: none; }
+  .tb-divider { margin: 0 2px; }
+  .page-head { padding: 14px 18px; flex-wrap: wrap; align-items: flex-start; }
+  .page-title { flex: 1 1 240px; }
+  .page-title h1 { white-space: normal; line-height: 1.25; }
+  .page-actions { margin-left: auto; }
+  .page-body-list { padding: 18px; }
 }
 @media (max-width: 700px) {
   body { grid-template-columns: 1fr; grid-template-areas: "topbar" "main"; }
   #navrail, #leftbar { display: none; }
   body.show-left #leftbar { display: flex; position: fixed; left: 0; top: 56px; bottom: 0; width: 280px; z-index: 50; box-shadow: var(--shadow-lg); }
+  body.page-active,
+  body.page-active.rightbar-closed,
+  body.page-active.ai-open,
+  body.page-active.nav-collapsed {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "topbar"
+      "main";
+  }
+  body.page-active #navrail { display: none; }
 }
