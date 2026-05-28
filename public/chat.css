@@ -162,9 +162,15 @@ body.page-active.ai-overlay #aiPanel {
   border: 1px solid var(--border);
   color: var(--foreground);
   background: var(--card, transparent);
+  gap: 8px;
+  padding: 8px 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 #sidebarToggleBtn:hover { background: var(--accent); color: var(--accent-foreground); }
 #sidebarToggleBtn .lucide { width: 18px; height: 18px; }
+#sidebarToggleBtn .sidebar-toggle-label { font-size: 13px; line-height: 1; }
 .tb-title {
   font-size: 13px; font-weight: 500; color: var(--muted-foreground); margin-left: 6px;
   min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -2006,6 +2012,8 @@ label.check input[type="checkbox"] { width: auto; margin: 0; cursor: pointer; }
 @media (max-width: 700px) {
   body { grid-template-columns: 1fr; grid-template-areas: "topbar" "main"; }
   #navrail, #leftbar { display: none; }
+  #sidebarToggleBtn { padding: 8px; }
+  #sidebarToggleBtn .sidebar-toggle-label { display: none; }
   body.show-left #leftbar { display: flex; position: fixed; left: 0; top: 56px; bottom: 0; width: 280px; z-index: 50; box-shadow: var(--shadow-lg); }
   body.page-active,
   body.page-active.rightbar-closed,

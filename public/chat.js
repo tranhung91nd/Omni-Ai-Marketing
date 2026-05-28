@@ -4028,7 +4028,23 @@ async function submitSendByPhone() {
 
 function setupTopbar() {
   const t = document.getElementById('sidebarToggleBtn');
-  if (t) t.onclick = () => document.body.classList.toggle('nav-collapsed');
+  const syncSidebarToggleLabel = () => {
+    if (!t) return;
+    const collapsed = document.body.classList.contains('nav-collapsed');
+    const text = collapsed ? 'Mở rộng' : 'Thu gọn';
+    const title = collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar';
+    const label = t.querySelector('.sidebar-toggle-label');
+    if (label) label.textContent = text;
+    t.title = title;
+    t.setAttribute('aria-label', title);
+  };
+  if (t) {
+    syncSidebarToggleLabel();
+    t.onclick = () => {
+      document.body.classList.toggle('nav-collapsed');
+      syncSidebarToggleLabel();
+    };
+  }
   const n = document.getElementById('newAccBtn');
   if (n) n.onclick = () => openModal('modalAddAcc');
   const s = document.getElementById('syncThreadsBtn');
