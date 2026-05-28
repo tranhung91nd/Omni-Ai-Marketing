@@ -524,9 +524,15 @@ app.post('/api/licenses/deactivate', (req, res) => {
 
 app.get('/api/updates/check', (req, res) => {
   const current = req.query.version || '0.0.0';
-  const latest = process.env.UPDATE_LATEST_VERSION || current;
-  const downloadUrl = process.env.UPDATE_DOWNLOAD_URL || '';
-  const notes = process.env.UPDATE_NOTES || '';
+  const platform = String(req.query.platform || '').toLowerCase();
+  const isMac = ['darwin', 'mac', 'macos'].includes(platform);
+  const isWin = ['win32', 'win', 'windows'].includes(platform);
+  const versionEnv = isMac ? 'UPDATE_LATEST_VERSION_MAC' : isWin ? 'UPDATE_LATEST_VERSION_WIN' : 'UPDATE_LATEST_VERSION';
+  const urlEnv = isMac ? 'UPDATE_DOWNLOAD_URL_MAC' : isWin ? 'UPDATE_DOWNLOAD_URL_WIN' : 'UPDATE_DOWNLOAD_URL';
+  const notesEnv = isMac ? 'UPDATE_NOTES_MAC' : isWin ? 'UPDATE_NOTES_WIN' : 'UPDATE_NOTES';
+  const latest = process.env[versionEnv] || process.env.UPDATE_LATEST_VERSION || current;
+  const downloadUrl = process.env[urlEnv] || process.env.UPDATE_DOWNLOAD_URL || '';
+  const notes = process.env[notesEnv] || process.env.UPDATE_NOTES || '';
   res.json({
     ok: true,
     currentVersion: current,

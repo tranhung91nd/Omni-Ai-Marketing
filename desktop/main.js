@@ -14,6 +14,8 @@ let serverProc = null;
 let localUrl = '';
 let updateFeedConfigured = false;
 let serverRunningInMainProcess = false;
+let pendingUpdateInfo = null;
+let showingUpdateError = false;
 
 function getFreePort(startPort) {
   return new Promise((resolve) => {
@@ -189,23 +191,68 @@ function attachEditableContextMenu(win) {
   });
 }
 
+function updateFeedUrl() {
+  return process.env.UPDATE_FEED_URL || config.updateFeedUrl || '';
+}
+
+function updateDownloadUrl(info) {
+  const feedUrl = updateFeedUrl();
+  const baseUrl = feedUrl.endsWith('/') ? feedUrl : `${feedUrl}/`;
+  const filePath = info?.files?.find(f => f.url)?.url || info?.path || '';
+  if (!filePath) return baseUrl || '';
+  try {
+    return new URL(filePath, baseUrl).toString();
+  } catch {
+    return filePath;
+  }
+}
+
+async function openUpdateDownload(info) {
+  const url = updateDownloadUrl(info);
+  if (!url) {
+    dialog.showErrorBox('Lỗi cập nhật', 'Không tìm thấy link tải bản cập nhật.');
+    return;
+  }
+  await shell.openExternal(url);
+}
+
+async function downloadUpdateWithFallback(info) {
+  try {
+    await autoUpdater.downloadUpdate();
+  } catch (e) {
+    const result = await dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      buttons: ['Mở link tải', 'Đóng'],
+      defaultId: 0,
+      cancelId: 1,
+      title: 'Không tải tự động được',
+      message: `Không tải tự động được bản cập nhật: ${e.message}`,
+    });
+    if (result.response === 0) await openUpdateDownload(info);
+  }
+}
+
 function setupUpdater() {
-  const feedUrl = process.env.UPDATE_FEED_URL || config.updateFeedUrl || '';
+  const feedUrl = updateFeedUrl();
   updateFeedConfigured = Boolean(feedUrl);
   if (updateFeedConfigured) autoUpdater.setFeedURL({ provider: 'generic', url: feedUrl });
   autoUpdater.autoDownload = false;
   autoUpdater.on('update-available', async (info) => {
+    pendingUpdateInfo = info;
+    const isMac = process.platform === 'darwin';
     const result = await dialog.showMessageBox(mainWindow, {
       type: 'info',
-      buttons: ['Tải bản mới', 'Để sau'],
+      buttons: isMac ? ['Tải DMG trực tiếp', 'Thử tải tự động', 'Để sau'] : ['Tải bản mới', 'Để sau'],
       defaultId: 0,
-      cancelId: 1,
+      cancelId: isMac ? 2 : 1,
       title: 'Có bản cập nhật',
       message: `Có phiên bản ${info.version}. Bạn muốn tải ngay không?`,
     });
-    if (result.response === 0) autoUpdater.downloadUpdate();
+    if (isMac && result.response === 0) await openUpdateDownload(info);
+    else if (result.response === 0 || (isMac && result.response === 1)) await downloadUpdateWithFallback(info);
   });
   autoUpdater.on('update-downloaded', async () => {
+    pendingUpdateInfo = null;
     const result = await dialog.showMessageBox(mainWindow, {
       type: 'info',
       buttons: ['Cài và mở lại', 'Để sau'],
@@ -216,7 +263,21 @@ function setupUpdater() {
     });
     if (result.response === 0) autoUpdater.quitAndInstall();
   });
-  autoUpdater.on('error', (e) => console.warn('[updater]', e.message));
+  autoUpdater.on('error', async (e) => {
+    console.warn('[updater]', e.message);
+    if (!pendingUpdateInfo || showingUpdateError) return;
+    showingUpdateError = true;
+    const result = await dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      buttons: ['Mở link tải', 'Đóng'],
+      defaultId: 0,
+      cancelId: 1,
+      title: 'Không tải tự động được',
+      message: `Không tải tự động được bản cập nhật: ${e.message}`,
+    });
+    showingUpdateError = false;
+    if (result.response === 0) await openUpdateDownload(pendingUpdateInfo);
+  });
 }
 
 async function checkForUpdates(showNoUpdate = false) {
