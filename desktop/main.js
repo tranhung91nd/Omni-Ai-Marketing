@@ -195,10 +195,12 @@ function updateFeedUrl() {
   return process.env.UPDATE_FEED_URL || config.updateFeedUrl || '';
 }
 
-function updateDownloadUrl(info) {
+function updateDownloadUrl(info, preferredExt = '') {
   const feedUrl = updateFeedUrl();
   const baseUrl = feedUrl.endsWith('/') ? feedUrl : `${feedUrl}/`;
-  const filePath = info?.files?.find(f => f.url)?.url || info?.path || '';
+  const files = Array.isArray(info?.files) ? info.files : [];
+  const preferredFile = preferredExt ? files.find(f => String(f.url || '').toLowerCase().endsWith(preferredExt)) : null;
+  const filePath = preferredFile?.url || files.find(f => f.url)?.url || info?.path || '';
   if (!filePath) return baseUrl || '';
   try {
     return new URL(filePath, baseUrl).toString();
@@ -207,8 +209,8 @@ function updateDownloadUrl(info) {
   }
 }
 
-async function openUpdateDownload(info) {
-  const url = updateDownloadUrl(info);
+async function openUpdateDownload(info, preferredExt = '') {
+  const url = updateDownloadUrl(info, preferredExt);
   if (!url) {
     dialog.showErrorBox('Lỗi cập nhật', 'Không tìm thấy link tải bản cập nhật.');
     return;
@@ -228,7 +230,7 @@ async function downloadUpdateWithFallback(info) {
       title: 'Không tải tự động được',
       message: `Không tải tự động được bản cập nhật: ${e.message}`,
     });
-    if (result.response === 0) await openUpdateDownload(info);
+    if (result.response === 0) await openUpdateDownload(info, process.platform === 'darwin' ? '.dmg' : '');
   }
 }
 
@@ -248,7 +250,7 @@ function setupUpdater() {
       title: 'Có bản cập nhật',
       message: `Có phiên bản ${info.version}. Bạn muốn tải ngay không?`,
     });
-    if (isMac && result.response === 0) await openUpdateDownload(info);
+    if (isMac && result.response === 0) await openUpdateDownload(info, '.dmg');
     else if (result.response === 0 || (isMac && result.response === 1)) await downloadUpdateWithFallback(info);
   });
   autoUpdater.on('update-downloaded', async () => {
@@ -276,7 +278,7 @@ function setupUpdater() {
       message: `Không tải tự động được bản cập nhật: ${e.message}`,
     });
     showingUpdateError = false;
-    if (result.response === 0) await openUpdateDownload(pendingUpdateInfo);
+    if (result.response === 0) await openUpdateDownload(pendingUpdateInfo, process.platform === 'darwin' ? '.dmg' : '');
   });
 }
 
