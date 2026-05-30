@@ -4100,24 +4100,44 @@ const ROUTE_TO_ACTION = {
 };
 const ACTION_TO_ROUTE = Object.fromEntries(Object.entries(ROUTE_TO_ACTION).map(([k, v]) => [v, k]));
 
+function isNavRailIconOnly() {
+  return document.body.classList.contains('nav-collapsed') || window.matchMedia('(max-width: 1400px)').matches;
+}
+
+function navigateNavElement(el) {
+  const href = el.getAttribute('href') || ACTION_TO_ROUTE[el.dataset.action];
+  const action = el.dataset.action;
+  if (href && href !== location.pathname) {
+    history.pushState({ action }, '', href);
+    routeToCurrentPath();
+  } else {
+    handleNavAction(action, el);
+  }
+}
+
 function setupNavRail() {
   document.querySelectorAll('[data-action]').forEach(el => {
-    const href = el.getAttribute('href') || ACTION_TO_ROUTE[el.dataset.action];
     el.onclick = (e) => {
       e.preventDefault();
       e.stopPropagation();
-      const action = el.dataset.action;
-      if (href && href !== location.pathname) {
-        history.pushState({ action }, '', href);
-        routeToCurrentPath();
-      } else {
-        handleNavAction(action, el);
-      }
+      navigateNavElement(el);
     };
   });
   document.querySelectorAll('.nav-head[data-grp]').forEach(head => {
     head.onclick = (e) => {
       if (head.dataset.action) return;
+      if (isNavRailIconOnly()) {
+        const group = head.parentElement;
+        const activeItem = group && group.querySelector('.nav-sub .nav-item.active[data-action]');
+        const firstItem = group && group.querySelector('.nav-sub .nav-item[data-action]');
+        const target = activeItem || firstItem;
+        if (target) {
+          e.preventDefault();
+          e.stopPropagation();
+          navigateNavElement(target);
+          return;
+        }
+      }
       head.parentElement.classList.toggle('collapsed');
     };
   });
@@ -4179,7 +4199,13 @@ function routeToCurrentPath() {
   const action = ROUTE_TO_ACTION[path];
   document.querySelectorAll('.nav-item.active, .nav-head.active').forEach(x => x.classList.remove('active'));
   const target = document.querySelector(`[data-action="${action}"]`);
-  if (target) target.classList.add('active');
+  if (target) {
+    target.classList.add('active');
+    if (target.classList.contains('nav-item')) {
+      const groupHead = target.closest('.nav-group')?.querySelector('.nav-head[data-grp]');
+      if (groupHead) groupHead.classList.add('active');
+    }
+  }
   updateTopbarTitle();
   document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
   $('#chatMain').classList.remove('hidden');
