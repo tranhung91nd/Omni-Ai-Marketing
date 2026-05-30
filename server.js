@@ -16,16 +16,11 @@ const QR_PORT = Number(process.env.QR_PORT || 18927);
 const HOST = process.env.HOST || '';
 const ZALO_AGENT_BIN = process.env.ZALO_AGENT_BIN || 'zalo-agent';
 const ROOT_REDIRECT = process.env.ROOT_REDIRECT || '/chat';
-const LICENSE_ADMIN_ROUTE = process.env.LICENSE_ADMIN_ROUTE || '/license-admin';
-const LICENSE_ADMIN_TARGET = process.env.LICENSE_ADMIN_TARGET || '/license-api/admin';
 const DOWNLOADS_DIR = path.join(__dirname, 'public', 'downloads', 'zalo-agent');
 
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 app.get('/', (req, res) => res.redirect(ROOT_REDIRECT));
-if (LICENSE_ADMIN_ROUTE) {
-  app.get(LICENSE_ADMIN_ROUTE, (req, res) => res.redirect(LICENSE_ADMIN_TARGET));
-}
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 app.get('/api/health', (_req, res) => res.json({ ok: true, version: require('./package.json').version }));
 app.get('/api/downloads/latest', (req, res) => {
