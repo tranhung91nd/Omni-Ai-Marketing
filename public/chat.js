@@ -4141,7 +4141,7 @@ function setupTopbar() {
   const t = document.getElementById('sidebarToggleBtn');
   const syncSidebarToggleLabel = () => {
     if (!t) return;
-    const collapsed = document.body.classList.contains('nav-collapsed');
+    const collapsed = isSidebarVisuallyCollapsed();
     const text = collapsed ? 'Mở rộng' : 'Thu gọn';
     const title = collapsed ? 'Mở rộng sidebar' : 'Thu gọn sidebar';
     const label = t.querySelector('.sidebar-toggle-label');
@@ -4152,9 +4152,25 @@ function setupTopbar() {
   if (t) {
     syncSidebarToggleLabel();
     t.onclick = () => {
-      document.body.classList.toggle('nav-collapsed');
+      if (isSidebarVisuallyCollapsed()) {
+        document.body.classList.remove('nav-collapsed');
+        document.body.classList.add('nav-expanded');
+      } else {
+        document.body.classList.add('nav-collapsed');
+        document.body.classList.remove('nav-expanded');
+      }
       syncSidebarToggleLabel();
     };
+    const compactNavMq = window.matchMedia('(max-width: 1400px)');
+    const onCompactNavChange = () => {
+      if (!compactNavMq.matches) document.body.classList.remove('nav-expanded');
+      syncSidebarToggleLabel();
+    };
+    if (compactNavMq.addEventListener) {
+      compactNavMq.addEventListener('change', onCompactNavChange);
+    } else if (compactNavMq.addListener) {
+      compactNavMq.addListener(onCompactNavChange);
+    }
   }
   const n = document.getElementById('newAccBtn');
   if (n) n.onclick = () => openModal('modalAddAcc');
@@ -4212,7 +4228,12 @@ const ROUTE_TO_ACTION = {
 const ACTION_TO_ROUTE = Object.fromEntries(Object.entries(ROUTE_TO_ACTION).map(([k, v]) => [v, k]));
 
 function isNavRailIconOnly() {
-  return document.body.classList.contains('nav-collapsed') || window.matchMedia('(max-width: 1400px)').matches;
+  return isSidebarVisuallyCollapsed();
+}
+
+function isSidebarVisuallyCollapsed() {
+  return !document.body.classList.contains('nav-expanded') &&
+    (document.body.classList.contains('nav-collapsed') || window.matchMedia('(max-width: 1400px)').matches);
 }
 
 function navigateNavElement(el) {

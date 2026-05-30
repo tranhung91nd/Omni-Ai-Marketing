@@ -2019,6 +2019,28 @@ label.check input[type="checkbox"] { width: auto; margin: 0; cursor: pointer; }
   body .nav-lb, body .nav-ar, body .nav-sub, body .brand-name, body .nav-section-label { display: none; }
   body .nav-head { justify-content: center; padding: 9px 0; }
   body .nav-brand { justify-content: center; padding: 0; }
+  body.nav-expanded { grid-template-columns: 248px minmax(0, 300px) minmax(0, 1fr) 300px; }
+  body.nav-expanded.rightbar-closed { grid-template-columns: 248px minmax(0, 300px) minmax(0, 1fr); }
+  body.nav-expanded.ai-open { grid-template-columns: 248px minmax(0, 300px) minmax(0, 1fr) 380px; }
+  body.page-active.nav-expanded,
+  body.page-active.nav-expanded.rightbar-closed,
+  body.page-active.nav-expanded.ai-open {
+    grid-template-columns: 248px minmax(0, 1fr);
+  }
+  body.nav-expanded .nav-lb,
+  body.nav-expanded .nav-ar,
+  body.nav-expanded .nav-sub { display: flex; }
+  body.nav-expanded .brand-name,
+  body.nav-expanded .nav-section-label { display: block; }
+  body.nav-expanded .nav-head { justify-content: flex-start; padding: 8px 10px; }
+  body.nav-expanded .nav-brand { justify-content: flex-start; padding: 0 16px; }
+  body.nav-expanded .nav-scroll { padding: 12px 8px; }
+  body.nav-expanded .nav-section { margin-bottom: 14px; }
+  body.nav-expanded .nav-bottom {
+    margin-top: auto !important;
+    padding-top: 14px;
+    border-top: 1px solid var(--sidebar-border);
+  }
 }
 @media (max-width: 1100px) {
   body { grid-template-columns: 64px minmax(0, 280px) minmax(0, 1fr); grid-template-areas: "navrail topbar topbar" "navrail leftbar main"; }
@@ -2029,6 +2051,20 @@ label.check input[type="checkbox"] { width: auto; margin: 0; cursor: pointer; }
   body.page-active.ai-open,
   body.page-active.nav-collapsed {
     grid-template-columns: 64px minmax(0, 1fr);
+    grid-template-areas:
+      "navrail topbar"
+      "navrail main";
+  }
+  body.nav-expanded {
+    grid-template-columns: 248px minmax(0, 280px) minmax(0, 1fr);
+    grid-template-areas:
+      "navrail topbar topbar"
+      "navrail leftbar main";
+  }
+  body.page-active.nav-expanded,
+  body.page-active.nav-expanded.rightbar-closed,
+  body.page-active.nav-expanded.ai-open {
+    grid-template-columns: 248px minmax(0, 1fr);
     grid-template-areas:
       "navrail topbar"
       "navrail main";
@@ -2050,9 +2086,11 @@ label.check input[type="checkbox"] { width: auto; margin: 0; cursor: pointer; }
   #sidebarToggleBtn { padding: 8px; }
   #sidebarToggleBtn .sidebar-toggle-label { display: none; }
   body.show-left #leftbar { display: flex; position: fixed; left: 0; top: 56px; bottom: 0; width: 280px; z-index: 50; box-shadow: var(--shadow-lg); }
+  body.nav-expanded,
   body.page-active,
   body.page-active.rightbar-closed,
   body.page-active.ai-open,
+  body.page-active.nav-expanded,
   body.page-active.nav-collapsed {
     grid-template-columns: 1fr;
     grid-template-areas:
