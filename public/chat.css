@@ -526,6 +526,33 @@ body.nav-collapsed .nav-bottom { margin-top: 4px !important; padding-top: 4px; b
 .chat-actions { display: flex; gap: 2px; }
 
 #chatBody { flex: 1; overflow-y: auto; padding: 18px 28px; }
+.pinned-messages-bar {
+  flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+  padding: 8px 18px; border-bottom: 1px solid var(--border);
+  background: var(--card); box-shadow: var(--shadow-sm); z-index: 3;
+}
+.pinned-messages-bar.hidden { display: none; }
+.pinned-messages-bar .pin-main {
+  min-width: 0; flex: 1; display: flex; align-items: center; gap: 8px;
+  border: 1px solid var(--border); background: var(--background);
+  color: var(--foreground); border-radius: 8px; padding: 8px 10px;
+  cursor: pointer; text-align: left;
+}
+.pinned-messages-bar .pin-main:hover { border-color: var(--ring); background: var(--accent); }
+.pinned-messages-bar .pin-main .lucide { width: 16px; height: 16px; color: var(--primary); flex-shrink: 0; }
+.pinned-messages-bar .pin-label { color: var(--primary); font-weight: 700; font-size: 12px; flex-shrink: 0; }
+.pinned-messages-bar .pin-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.pinned-messages-bar .pin-more {
+  flex-shrink: 0; font-size: 11px; color: var(--muted-foreground);
+  border: 1px solid var(--border); border-radius: 999px; padding: 2px 7px;
+}
+.pinned-messages-bar .pin-unpin {
+  width: 34px; height: 34px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--background);
+  color: var(--muted-foreground); cursor: pointer;
+}
+.pinned-messages-bar .pin-unpin:hover { color: var(--destructive); border-color: var(--destructive); }
+.pinned-messages-bar .pin-unpin .lucide { width: 16px; height: 16px; }
 .placeholder {
   height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
   text-align: center; color: var(--muted-foreground); gap: 10px;
@@ -560,7 +587,14 @@ body.nav-collapsed .nav-bottom { margin-top: 4px !important; padding-top: 4px; b
   background: var(--chat-bubble-user); color: var(--primary-foreground);
   border-color: transparent; border-bottom-right-radius: 4px;
 }
+.msg-row.pinned .msg-bubble { box-shadow: 0 0 0 2px oklch(from var(--primary) l c h / .32); }
 .msg-row:not(.self) .msg-bubble { border-bottom-left-radius: 4px; }
+.msg-pin-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 3px; font-size: 11px; font-weight: 700;
+  color: var(--primary);
+}
+.msg-pin-badge .lucide { width: 12px; height: 12px; }
 .msg-time { font-size: 10.5px; color: var(--muted-foreground); margin-top: 3px; }
 .msg-from { font-size: 11px; color: var(--muted-foreground); margin-bottom: 2px; font-weight: 600; }
 

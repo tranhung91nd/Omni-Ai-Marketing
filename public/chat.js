@@ -6,6 +6,7 @@ const state = {
   labelsCache: [],
   currentThread: null,
   messages: [],
+  pinnedMessages: [],
   msgOffset: 0,
   msgHasMore: true,
   msgLoading: false,
@@ -284,9 +285,11 @@ async function selectAccount(ownId) {
   await loadThreads();
   await loadTemplates();
   state.currentThread = null;
+  state.pinnedMessages = [];
   $('#chatHeader').classList.add('hidden');
   $('#chatFooter').classList.add('hidden');
   $('#messages').classList.add('hidden');
+  renderPinnedMessagesBar();
   $('#chatPlaceholder').classList.remove('hidden');
 }
 
@@ -611,6 +614,7 @@ function openThreadContextMenu(evt, threadId, threadType) {
         if (state.currentThread && state.currentThread.id === threadId) {
           state.currentThread = null;
           state.messages = [];
+          state.pinnedMessages = [];
           renderMessages();
         }
         renderThreads();
@@ -680,6 +684,8 @@ async function openThread(threadId, threadType) {
   const t = state.threads.find(x => x.id === threadId);
   if (!t) return;
   state.currentThread = t;
+  state.pinnedMessages = [];
+  renderPinnedMessagesBar();
   renderThreads();
   await api(`/api/chat/mark-read/${state.ownId}/${threadId}`, { method: 'POST' });
   t.unread = 0;
@@ -741,6 +747,7 @@ async function loadMessages(reset = true) {
   if (!state.msgHasMore) { state.msgLoading = false; return; }
   const r = await api(`/api/chat/messages/${state.ownId}/${state.currentThread.id}?limit=${PAGE_SIZE}&offset=${state.msgOffset}`);
   const batch = r.data || [];
+  if (reset) state.pinnedMessages = r.pinned || [];
   if (batch.length < PAGE_SIZE) state.msgHasMore = false;
   if (reset) {
     state.messages = batch;
@@ -912,6 +919,7 @@ function renderMsgContent(m) {
 function renderMessages(scrollToBottom = true) {
   const box = $('#messages');
   const isGroup = state.currentThread?.type === 1;
+  renderPinnedMessagesBar();
   if (!state.messages.length) {
     if (isGroup) {
       box.innerHTML = `<div class="empty">
@@ -941,19 +949,22 @@ function renderMessages(scrollToBottom = true) {
       : '';
     const phoneList = !isRecalled && typeof m.content === 'string' ? extractPhones(m.content) : [];
     const phoneCards = phoneList.map(p => `<div class="phone-card" data-phone="${p.norm}" data-idx="${idx}"><div class="pc-head"><div class="avatar">📞</div><div class="info"><div class="nm">Đang tra cứu...</div><div class="ph">${escapeHtml(p.raw)}</div></div></div></div>`).join('');
+    const pinnedBadge = m.pinned ? `<div class="msg-pin-badge"><i data-lucide="pin"></i>Đã ghim</div>` : '';
     return `
-      <div class="msg-row ${self ? 'self' : ''}" data-idx="${idx}">
+      <div class="msg-row ${self ? 'self' : ''} ${m.pinned ? 'pinned' : ''}" data-idx="${idx}" data-msgid="${escapeHtml(String(m.msgId || ''))}">
         <div class="msg-content">
-          ${!self && state.currentThread.type === 1 && m.fromName ? `<div class="msg-from">${escapeHtml(m.fromName)}</div>` : ''}
+          ${!self && state.currentThread?.type === 1 && m.fromName ? `<div class="msg-from">${escapeHtml(m.fromName)}</div>` : ''}
           <div class="bubble-wrap">
             ${bubble}
             ${!isRecalled ? `<button class="react-btn" data-act="react-open" title="Thả cảm xúc">👍</button>` : ''}
             ${!isRecalled ? `<div class="msg-actions">
               <button data-act="reply" title="Trả lời"><i data-lucide="reply"></i></button>
               <button data-act="forward" title="Chuyển tiếp"><i data-lucide="forward"></i></button>
+              <button data-act="pin" title="${m.pinned ? 'Bỏ ghim' : 'Ghim tin nhắn'}"><i data-lucide="pin"></i></button>
               <button data-act="more" title="Thêm"><i data-lucide="more-horizontal"></i></button>
             </div>` : ''}
           </div>
+          ${pinnedBadge}
           ${reactions}
           ${phoneCards}
           <div class="msg-time">${new Date(m.ts).toLocaleString('vi-VN')}</div>
@@ -969,6 +980,7 @@ function renderMessages(scrollToBottom = true) {
         if (!m) return;
         if (b.dataset.act === 'reply') startReply(m);
         else if (b.dataset.act === 'forward') openForwardModal(m);
+        else if (b.dataset.act === 'pin') toggleMessagePin(m, idx);
         else if (b.dataset.act === 'more') openMsgContextMenu(e, m, idx);
       };
     });
@@ -999,6 +1011,94 @@ function renderMessages(scrollToBottom = true) {
   };
   if (scrollToBottom) box.scrollTop = box.scrollHeight;
   if (window.lucide) window.lucide.createIcons();
+}
+
+function updateLocalPinState(msgId, pinned) {
+  const id = String(msgId || '');
+  state.messages.forEach(msg => {
+    if (String(msg.msgId || '') === id) msg.pinned = pinned ? 1 : 0;
+  });
+}
+
+function setPinnedMessageLocal(msg, pinned) {
+  const id = String(msg?.msgId || '');
+  if (!id) return;
+  if (!pinned) {
+    state.pinnedMessages = (state.pinnedMessages || []).filter(p => String(p.msgId || '') !== id);
+    updateLocalPinState(id, false);
+    return;
+  }
+  const pinnedMsg = { ...msg, pinned: 1, pinnedAt: Math.floor(Date.now() / 1000) };
+  state.pinnedMessages = [
+    pinnedMsg,
+    ...(state.pinnedMessages || []).filter(p => String(p.msgId || '') !== id),
+  ].slice(0, 5);
+  updateLocalPinState(id, true);
+}
+
+function renderPinnedMessagesBar() {
+  const bar = $('#pinnedMessagesBar');
+  if (!bar) return;
+  const pins = state.currentThread ? (state.pinnedMessages || []).filter(p => p?.msgId) : [];
+  if (!pins.length) {
+    bar.classList.add('hidden');
+    bar.innerHTML = '';
+    return;
+  }
+  const top = pins[0];
+  const more = pins.length > 1 ? `<span class="pin-more">+${pins.length - 1}</span>` : '';
+  bar.classList.remove('hidden');
+  bar.innerHTML = `
+    <button type="button" class="pin-main" data-act="goto-pin" title="Tới tin nhắn đã ghim">
+      <i data-lucide="pin"></i>
+      <span class="pin-label">Tin ghim</span>
+      <span class="pin-text">${escapeHtml(snippetFromMsg(top) || 'Tin nhắn đã ghim')}</span>
+      ${more}
+    </button>
+    <button type="button" class="pin-unpin" data-act="unpin-top" title="Bỏ ghim tin này"><i data-lucide="x"></i></button>`;
+  bar.querySelector('[data-act="goto-pin"]').onclick = () => scrollToMessage(top.msgId);
+  bar.querySelector('[data-act="unpin-top"]').onclick = () => toggleMessagePin(top);
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function scrollToMessage(msgId) {
+  const id = String(msgId || '');
+  const row = Array.from(document.querySelectorAll('#messages .msg-row')).find(el => el.dataset.msgid === id);
+  if (!row) return toast('Tin ghim chưa nằm trong phần tin đang tải', 'info');
+  row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  row.classList.add('search-current');
+  setTimeout(() => row.classList.remove('search-current'), 1600);
+}
+
+function rerenderMessagesKeepScroll() {
+  const body = $('#chatBody');
+  const prevScroll = body ? body.scrollTop : 0;
+  renderMessages(false);
+  if (body) body.scrollTop = prevScroll;
+}
+
+async function toggleMessagePin(msg) {
+  if (!state.currentThread || !msg?.msgId) return toast('Tin nhắn này chưa có mã để ghim', 'err');
+  const nextPinned = !msg.pinned;
+  const prevPins = [...(state.pinnedMessages || [])];
+  setPinnedMessageLocal(msg, nextPinned);
+  rerenderMessagesKeepScroll();
+  const r = await api('/api/chat/message-pin', {
+    method: 'POST',
+    body: {
+      ownId: state.ownId,
+      threadId: state.currentThread.id,
+      msgId: msg.msgId,
+      pinned: nextPinned,
+    },
+  });
+  if (!r.ok) {
+    state.pinnedMessages = prevPins;
+    updateLocalPinState(msg.msgId, !nextPinned);
+    rerenderMessagesKeepScroll();
+    return toast('Lỗi: ' + r.error, 'err');
+  }
+  toast(nextPinned ? 'Đã ghim tin nhắn' : 'Đã bỏ ghim tin nhắn', 'ok');
 }
 
 state.phoneCache = state.phoneCache || {};
@@ -1064,6 +1164,7 @@ function paintPhoneCard(card, phone, info) {
         } else {
           state.currentThread = { id: uid, type: 0, name: 'Chat với ' + uid.slice(-6) };
           state.messages = [];
+          state.pinnedMessages = [];
           $('#chatPlaceholder').classList.add('hidden');
           $('#chatHeader').classList.remove('hidden');
           $('#chatFooter').classList.remove('hidden');
@@ -1825,6 +1926,7 @@ function openMsgContextMenu(evt, m, idx) {
     { act: 'copy', icon: 'copy', label: 'Copy tin nhắn' },
     { act: 'reply', icon: 'reply', label: 'Trả lời' },
     { act: 'forward', icon: 'forward', label: 'Chuyển tiếp' },
+    { act: 'pin', icon: 'pin', label: m.pinned ? 'Bỏ ghim tin nhắn' : 'Ghim tin nhắn' },
     { act: 'detail', icon: 'info', label: 'Xem chi tiết' },
     { divider: true },
     { act: 'delete', icon: 'trash-2', label: 'Xoá chỉ ở phía tôi', danger: true },
@@ -1852,6 +1954,8 @@ function openMsgContextMenu(evt, m, idx) {
         startReply(m);
       } else if (act === 'forward') {
         openForwardModal(m);
+      } else if (act === 'pin') {
+        toggleMessagePin(m);
       } else if (act === 'detail') {
         openMsgDetailModal(m);
       } else if (act === 'delete') {
@@ -2415,9 +2519,14 @@ function onWSMessage(m) {
         loadFbConvos();
         if (m.conversationId === fpState.selectedConvoId) loadFbMessages(m.conversationId);
       }
-    } else if (!m.isFromPage) {
+    } else if (!m.isFromPage && !m.isNote) {
       // Đang trang khác → notification
       toast(`📩 FB: ${m.customerName || 'Khách'}: ${(m.content || '').slice(0, 50)}`, 'info');
+    }
+  }
+  if (m.kind === 'fb-status' && m.pageId === fpState.selectedPageId) {
+    if (document.querySelector('#pageFanpage:not(.hidden)') && fpState.selectedConvoId) {
+      loadFbMessages(fpState.selectedConvoId);
     }
   }
   if (m.kind === 'task-progress' && m.taskId === currentTaskId) {
@@ -2933,12 +3042,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const r = await api('/api/chat/thread-remove', { method: 'POST', body: { ownId: state.ownId, threadId: state.currentThread.id } });
     if (!r.ok) return toast('Lỗi: ' + r.error, 'err');
     state.messages = [];
+    state.pinnedMessages = [];
     renderMessages();
     state.threads = state.threads.filter(t => t.id !== state.currentThread.id);
     state.currentThread = null;
     $('#chatHeader').classList.add('hidden');
     $('#chatFooter').classList.add('hidden');
     $('#messages').classList.add('hidden');
+    renderPinnedMessagesBar();
     $('#chatPlaceholder').classList.remove('hidden');
     renderThreads();
     toast('Đã xoá lịch sử local', 'ok');
@@ -4514,6 +4625,8 @@ const bkState = { friends: [], selected: new Set() };
 // ══════════════════════════════════════════════
 // FANPAGE PAGE (Chatwoot-style inbox)
 // ══════════════════════════════════════════════
+const DEFAULT_FP_OPENING_MESSAGE = 'Chào bạn, bên mình có thể hỗ trợ gì cho bạn hôm nay?';
+
 const fpState = {
   pages: [],
   selectedPageId: null,
@@ -4523,6 +4636,8 @@ const fpState = {
   composeTab: 'reply',
   counts: { open: 0, pending: 0, resolved: 0, all: 0 },
   labelFilter: null,
+  convoReqSeq: 0,
+  msgReqSeq: 0,
 };
 
 async function initFanpagePage() {
@@ -4547,7 +4662,7 @@ function bindFanpageHandlers() {
   $('#fpAddPageBtn').onclick = () => { closeFpDropdown(); openModal('modalAddFanpage'); resetFanpageModal(); loadFbAppConfig(); };
   $('#fpLoginFbBtn').onclick = startFbOAuth;
   $('#fpQuickConnectBtn').onclick = quickConnectWithToken;
-  $('#fpSaveAppConfigBtn').onclick = saveFbAppConfig;
+  if ($('#fpSaveAppConfigBtn')) $('#fpSaveAppConfigBtn').onclick = saveFbAppConfig;
   $('#fpConnectSelectedBtn').onclick = connectSelectedPages;
   $('#fpPageCurrentBtn').onclick = (e) => { e.stopPropagation(); toggleFpDropdown(); };
   document.addEventListener('click', (e) => {
@@ -4573,6 +4688,12 @@ function bindFanpageHandlers() {
   });
   $('#fpSyncAllBtn').onclick = () => { closeFpDropdown(); syncAllFbConversations(); };
   $('#fpAutoClassifyBtn').onclick = () => { closeFpDropdown(); openAutoClassifyModal(); };
+  $('#fpOpeningMsgBtn').onclick = () => { closeFpDropdown(); openFpOpeningMessageModal(); };
+  $('#fpOpeningSaveBtn').onclick = saveFpOpeningMessage;
+  $('#fpOpeningInsertDefaultBtn').onclick = () => {
+    $('#fpOpeningMessage').value = DEFAULT_FP_OPENING_MESSAGE;
+    $('#fpOpeningMessage').focus();
+  };
   $('#fpSendBtn').onclick = sendFbMessage;
   $('#fpInput').onkeydown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendFbMessage(); }
@@ -4661,7 +4782,8 @@ function renderFpCurrentPage() {
   }
   $('#fpCurrentName').textContent = cur.name;
   const others = fpState.pages.length - 1;
-  $('#fpCurrentMeta').textContent = others > 0 ? `+ ${others} Fanpages khác` : (cur.instagramId ? '📷 Có Instagram Business' : 'Đang quản lý');
+  const openingText = cur.openingMessage ? (cur.openingAutoSend ? 'Tin mở đầu: bật' : 'Có tin mở đầu') : '';
+  $('#fpCurrentMeta').textContent = openingText || (others > 0 ? `+ ${others} Fanpages khác` : (cur.instagramId ? '📷 Có Instagram Business' : 'Đang quản lý'));
   $('#fpCurrentAvatar').style.backgroundImage = cur.avatar ? `url('${cur.avatar}')` : '';
   $('#fpCurrentAvatar').textContent = cur.avatar ? '' : avatarText(cur.name);
 }
@@ -4676,6 +4798,7 @@ function renderFbPages() {
     <div class="fp-page-item ${p.pageId === fpState.selectedPageId ? 'active' : ''}" data-id="${p.pageId}" title="${p.reauthRequired ? 'Cần cập nhật token: ' + (p.lastError || '') : (p.lastError || '')}">
       <div class="avatar" ${p.avatar ? `style="background-image:url('${p.avatar}')"` : ''}>${p.avatar ? '' : escapeHtml(avatarText(p.name))}</div>
       <div class="nm">${escapeHtml(p.name)}${p.instagramId ? ' <span title="Có Instagram Business liên kết" style="font-size:10px">📷</span>' : ''}</div>
+      ${p.openingMessage ? '<span class="badge" title="Đã cài tin mở đầu">Mở đầu</span>' : ''}
       ${p.reauthRequired ? '<span class="badge">⚠</span>' : ''}
       <button class="btn-icon" data-act="update-token" title="Cập nhật token" style="padding:4px;background:transparent;border:0;cursor:pointer"><i data-lucide="key-round" style="width:14px;height:14px"></i></button>
     </div>
@@ -4698,6 +4821,62 @@ function renderFbPages() {
     };
   });
   if (window.lucide) window.lucide.createIcons();
+}
+
+function openFpOpeningMessageModal() {
+  const page = fpState.pages.find(p => p.pageId === fpState.selectedPageId);
+  if (!page) return toast('Chọn Fanpage trước', 'err');
+  $('#fpOpeningPageName').textContent = page.name || page.pageId;
+  $('#fpOpeningMessage').value = page.openingMessage || '';
+  $('#fpOpeningAutoSend').checked = !!page.openingAutoSend;
+  $('#fpOpeningOnlyFirst').checked = page.openingOnlyFirstMsg !== 0;
+  $('#fpOpeningStatus').textContent = '';
+  openModal('modalFpOpeningMessage');
+  setTimeout(() => $('#fpOpeningMessage')?.focus(), 50);
+}
+
+async function saveFpOpeningMessage() {
+  const pageId = fpState.selectedPageId;
+  if (!pageId) return toast('Chọn Fanpage trước', 'err');
+
+  const message = $('#fpOpeningMessage').value.trim();
+  const autoSend = $('#fpOpeningAutoSend').checked;
+  const onlyFirstMsg = $('#fpOpeningOnlyFirst').checked;
+  if (autoSend && !message) return toast('Cần nhập nội dung trước khi bật tự gửi', 'err');
+
+  const btn = $('#fpOpeningSaveBtn');
+  const status = $('#fpOpeningStatus');
+  btn.disabled = true;
+  status.textContent = 'Đang lưu...';
+  try {
+    const r = await api(`/api/fb/pages/${pageId}/opening-message`, {
+      method: 'POST',
+      body: { message, autoSend, onlyFirstMsg },
+    });
+    if (!r.ok) {
+      status.textContent = r.error || 'Lưu thất bại';
+      toast('Lỗi lưu tin mở đầu: ' + (r.error || ''), 'err');
+      return;
+    }
+    const idx = fpState.pages.findIndex(p => p.pageId === pageId);
+    if (idx >= 0) {
+      fpState.pages[idx] = {
+        ...fpState.pages[idx],
+        openingMessage: message,
+        openingAutoSend: autoSend ? 1 : 0,
+        openingOnlyFirstMsg: onlyFirstMsg ? 1 : 0,
+      };
+    }
+    renderFbPages();
+    renderFpCurrentPage();
+    status.textContent = 'Đã lưu cài đặt.';
+    toast('Đã lưu tin nhắn mở đầu', 'ok');
+  } catch (e) {
+    status.textContent = e.message;
+    toast('Lỗi lưu tin mở đầu: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 function openUpdateTokenModal(page) {
@@ -4783,7 +4962,7 @@ async function quickConnectWithToken() {
 
 async function loadFbAppConfig() {
   const r = await api('/api/fb/app-config');
-  if (r.ok && r.data) {
+  if (r.ok && r.data && $('#fpAppId') && $('#fpAppSecret')) {
     $('#fpAppId').value = r.data.appId || '';
     if (r.data.appSecretSet) $('#fpAppSecret').placeholder = '✓ Đã có (nhập lại nếu muốn đổi)';
   }
@@ -4811,10 +4990,8 @@ async function startFbOAuth() {
   // Check cấu hình App ID/Secret trước khi mở popup
   const cfg = await api('/api/fb/app-config');
   if (!cfg.ok || !cfg.data?.appId || !cfg.data?.appSecretSet) {
-    $('#fpLoginStatus').innerHTML = '❌ <b>Chưa cấu hình Facebook App.</b><br>Mở phần "⚙️ Cấu hình Facebook App (lần đầu)" bên dưới → nhập App ID + App Secret → Lưu → bấm lại Đăng nhập.';
+    $('#fpLoginStatus').innerHTML = '❌ <b>Facebook Login chưa sẵn sàng.</b><br>Nền tảng chưa được cấu hình Meta App ở server. Vui lòng liên hệ quản trị hệ thống để bật kết nối Fanpage.';
     $('#fpLoginStatus').className = 'status-line err';
-    // Auto mở details
-    document.querySelector('#fpStep1 details')?.setAttribute('open', '');
     return;
   }
 
@@ -4902,7 +5079,10 @@ async function connectSelectedPages() {
 
 async function loadFbConvos() {
   if (!fpState.selectedPageId) return;
-  const r = await api(`/api/fb/pages/${fpState.selectedPageId}/conversations?status=${fpState.filter}&limit=2000`);
+  const pageId = fpState.selectedPageId;
+  const reqSeq = ++fpState.convoReqSeq;
+  const r = await api(`/api/fb/pages/${pageId}/conversations?status=${fpState.filter}&limit=2000`);
+  if (reqSeq !== fpState.convoReqSeq || pageId !== fpState.selectedPageId) return;
   fpState.conversations = r.ok ? r.data : [];
   fpState.counts = r.counts || {};
   // Tổng all
@@ -4998,7 +5178,9 @@ async function openFbConvo(convoId) {
 }
 
 async function loadFbMessages(convoId) {
+  const reqSeq = ++fpState.msgReqSeq;
   const r = await api(`/api/fb/conversations/${convoId}/messages?limit=100`);
+  if (reqSeq !== fpState.msgReqSeq || convoId !== fpState.selectedConvoId) return;
   if (!r.ok) return toast('Lỗi load tin: ' + r.error, 'err');
   const msgs = r.data || [];
   fpState.lastMessages = msgs;

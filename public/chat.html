@@ -105,6 +105,11 @@
           <i data-lucide="settings"></i><span class="nav-lb">Cài đặt</span>
         </a>
       </div>
+      <div class="nav-group">
+        <a class="nav-head" href="/license-admin" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:flex">
+          <i data-lucide="key-round"></i><span class="nav-lb">Tạo license</span>
+        </a>
+      </div>
     </div>
   </nav>
 </aside>
@@ -219,6 +224,7 @@
             <button class="btn-ghost" id="fpAddPageBtn" style="font-size:12px"><i data-lucide="plus"></i> Kết nối Fanpage mới</button>
             <button class="btn-ghost" id="fpSyncAllBtn" style="font-size:12px"><i data-lucide="cloud-download"></i> Đồng bộ hội thoại cũ</button>
             <button class="btn-ghost" id="fpAutoClassifyBtn" style="font-size:12px"><i data-lucide="sparkles"></i> AI tự phân loại nhãn</button>
+            <button class="btn-ghost" id="fpOpeningMsgBtn" style="font-size:12px"><i data-lucide="message-square-plus"></i> Tin mở đầu</button>
           </div>
           <div id="fpSyncStatus" style="font-size:11px;color:var(--muted-foreground);padding:4px 10px;text-align:center"></div>
         </div>
@@ -1064,6 +1070,8 @@
     </div>
   </header>
 
+  <div id="pinnedMessagesBar" class="pinned-messages-bar hidden"></div>
+
   <div id="chatBody">
     <div class="placeholder" id="chatPlaceholder">
       <div class="ph-icon"><i data-lucide="messages-square" style="width:56px;height:56px"></i></div>
@@ -1377,91 +1385,62 @@
     </div>
   </div>
 
+  <div class="modal hidden" id="modalFpOpeningMessage">
+    <div class="modal-head"><h2>Tin nhắn mở đầu Fanpage</h2><button class="close-btn" data-close="modalFpOpeningMessage">×</button></div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:12px">
+      <div class="hint" style="font-size:12px">Áp dụng cho: <b id="fpOpeningPageName">—</b></div>
+      <div class="field">
+        <label>Nội dung tin nhắn mở đầu</label>
+        <textarea id="fpOpeningMessage" rows="5" placeholder="Ví dụ: Chào bạn, bên mình có thể hỗ trợ gì cho bạn hôm nay?"></textarea>
+      </div>
+      <label class="ar-toggle" style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="fpOpeningAutoSend" />
+        <span class="ar-switch"></span>
+        <span class="ar-toggle-label">
+          <span style="font-weight:600;font-size:13px">Tự gửi khi khách nhắn vào Fanpage</span>
+          <span class="ar-status" style="display:block;font-size:11px;color:var(--muted-foreground)">Tin này sẽ gửi trước AI auto-reply.</span>
+        </span>
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="fpOpeningOnlyFirst" checked />
+        <span>Chỉ gửi ở tin nhắn đầu tiên của khách</span>
+      </label>
+      <div style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button class="btn-ghost" id="fpOpeningInsertDefaultBtn">Dùng mẫu gợi ý</button>
+        <button class="btn-primary" id="fpOpeningSaveBtn">Lưu cài đặt</button>
+      </div>
+      <div id="fpOpeningStatus" class="status-line"></div>
+    </div>
+  </div>
+
   <div class="modal hidden" id="modalAddFanpage">
     <div class="modal-head"><h2>Kết nối Fanpage Facebook</h2><button class="close-btn" data-close="modalAddFanpage">×</button></div>
     <div class="modal-body">
       <div id="fpStep1" class="fp-step">
-        <!-- Tabs chọn cách kết nối -->
-        <div style="display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border)">
-          <button type="button" class="fp-conn-tab active" data-conn="token" style="background:transparent;border:0;border-bottom:2px solid var(--primary);padding:10px 16px;cursor:pointer;font-weight:600;color:var(--primary)">
-            ⚡ Nhập Token (Nhanh)
-          </button>
-          <button type="button" class="fp-conn-tab" data-conn="oauth" style="background:transparent;border:0;border-bottom:2px solid transparent;padding:10px 16px;cursor:pointer;color:var(--muted-foreground)">
-            🔐 Facebook Login (Chuẩn)
-          </button>
-        </div>
-
-        <!-- TAB 1: Nhập token trực tiếp -->
-        <div id="fpConnToken" class="fp-conn-pane">
-          <div style="text-align:center;padding:10px 0">
-            <i data-lucide="key" style="width:36px;height:36px;color:#1877F2"></i>
-            <h3 style="margin:8px 0 4px">Dán User Access Token của bạn</h3>
-            <p class="hint" style="font-size:12px">Cách nhanh nhất nếu bạn đã có sẵn token Meta</p>
-          </div>
-          <div class="field">
-            <label style="font-weight:600">User Access Token</label>
-            <textarea id="fpQuickToken" rows="4" placeholder="EAAxxxxxxxxxxxxxxxxxxxxx..." style="font-family:monospace;font-size:11px"></textarea>
-          </div>
-          <button class="btn-primary block" id="fpQuickConnectBtn" style="background:#1877F2;font-size:14px;padding:12px">
-            <i data-lucide="zap"></i> Lấy danh sách Fanpage
-          </button>
-          <div id="fpQuickStatus" class="status-line" style="margin-top:10px"></div>
-          <details style="margin-top:14px">
-            <summary style="font-size:12px;cursor:pointer;color:var(--muted-foreground)">💡 Cách lấy User Access Token nhanh</summary>
-            <div style="margin-top:10px;padding:10px;background:var(--accent);border-radius:6px;font-size:12px;line-height:1.6">
-              <b>Cách 1: Graph API Explorer (1 phút)</b>
-              <ol style="padding-left:18px;margin:6px 0">
-                <li>Mở <a href="https://developers.facebook.com/tools/explorer/" target="_blank">developers.facebook.com/tools/explorer</a></li>
-                <li>Click <b>User or Page</b> → <b>Get User Access Token</b></li>
-                <li>Tick các quyền: <code>pages_show_list</code>, <code>pages_messaging</code>, <code>pages_read_engagement</code>, <code>pages_manage_metadata</code></li>
-                <li>Click <b>Generate Access Token</b> → login</li>
-                <li>Copy token (chuỗi dài EAA...) → paste vào ô trên</li>
-              </ol>
-              <b>Cách 2: Từ phần mềm khác</b><br>
-              Nếu bạn đã dùng tool nào trước (Pancake, AhaChat...) có thể export token từ đó.<br>
-              <b>Lưu ý:</b> Token Graph API Explorer chỉ sống ~1-2h. Sau đó cần lấy lại.
-              Để token sống lâu (60 ngày), dùng tab "Facebook Login" bên cạnh.
-            </div>
-          </details>
-        </div>
-
-        <!-- TAB 2: OAuth Login -->
-        <div id="fpConnOauth" class="fp-conn-pane hidden">
+        <div id="fpConnOauth" class="fp-conn-pane">
         <div style="text-align:center;padding:20px 0">
           <i data-lucide="facebook" style="width:48px;height:48px;color:#1877F2"></i>
           <h3 style="margin:14px 0 6px">Đăng nhập Facebook</h3>
-          <p class="hint" style="font-size:13px">Sau khi đăng nhập, bạn sẽ chọn Fanpage muốn kết nối.</p>
+          <p class="hint" style="font-size:13px">Bạn đăng nhập Facebook cá nhân, app tự lấy danh sách Fanpage để chọn. Token được lưu phía server và không hiển thị trên giao diện.</p>
         </div>
         <button class="btn-primary block" id="fpLoginFbBtn" style="background:#1877F2;font-size:14px;padding:12px">
-          <i data-lucide="facebook"></i> Đăng nhập Facebook
+          <i data-lucide="facebook"></i> Kết nối Facebook
         </button>
         <div id="fpLoginStatus" class="status-line" style="margin-top:10px"></div>
+        <div class="hint" style="font-size:12px;margin-top:10px;line-height:1.5">
+          Lưu ý: nếu app Meta chưa Live hoặc chưa được duyệt quyền <code>pages_messaging</code>, Page vẫn chỉ nhắn được với admin/developer/tester.
+        </div>
         <details style="margin-top:14px">
-          <summary style="font-size:12px;cursor:pointer;color:var(--muted-foreground)">⚙️ Cấu hình Facebook App (lần đầu)</summary>
-          <div style="margin-top:10px;padding:10px;background:var(--accent);border-radius:6px;font-size:11px">
-            <p><b>Trước khi dùng Login, bạn cần tạo Facebook App 1 lần:</b></p>
-            <ol style="padding-left:20px;margin:6px 0">
-              <li>Vào <a href="https://developers.facebook.com/apps/" target="_blank">developers.facebook.com/apps</a></li>
-              <li>Tạo App → loại <b>Business</b></li>
-              <li>Add Product → <b>Facebook Login for Business</b> + <b>Messenger</b></li>
-              <li>Facebook Login → Settings → Valid OAuth Redirect URIs:<br>
-                  <code>https://ai.hc-agency.online/api/fb/oauth-callback</code></li>
-              <li>Messenger → Settings → Webhooks:<br>
-                  Callback: <code>https://ai.hc-agency.online/api/fb/webhook</code><br>
-                  Verify Token: <code>trung-voi-FB_VERIFY_TOKEN-tren-VPS</code><br>
-                  Subscribe: messages, messaging_postbacks, message_echoes</li>
-              <li>Settings → Basic → copy App ID + App Secret → paste bên dưới:</li>
-            </ol>
-            <div class="field" style="margin-top:8px">
-              <label style="font-size:11px">App ID</label>
-              <input type="text" id="fpAppId" placeholder="123456789012345" />
-            </div>
+          <summary style="font-size:12px;cursor:pointer;color:var(--muted-foreground)">Kết nối bằng token thủ công (dự phòng)</summary>
+          <div id="fpConnToken" class="fp-conn-pane" style="margin-top:10px;padding:10px;background:var(--accent);border-radius:6px">
             <div class="field">
-              <label style="font-size:11px">App Secret</label>
-              <input type="password" id="fpAppSecret" placeholder="abcdef..." />
+              <label style="font-weight:600;font-size:11px">User Access Token</label>
+              <textarea id="fpQuickToken" rows="4" placeholder="EAAxxxxxxxxxxxxxxxxxxxxx..." style="font-family:monospace;font-size:11px"></textarea>
             </div>
-            <button class="btn-ghost" id="fpSaveAppConfigBtn" style="font-size:11px">Lưu cấu hình</button>
-            <div id="fpAppConfigStatus" class="status-line" style="font-size:11px"></div>
+            <button class="btn-ghost block" id="fpQuickConnectBtn" style="font-size:12px">
+              <i data-lucide="zap"></i> Lấy danh sách Fanpage
+            </button>
+            <div id="fpQuickStatus" class="status-line" style="margin-top:10px;font-size:11px"></div>
           </div>
         </details>
         </div><!-- /fpConnOauth -->

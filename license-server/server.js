@@ -203,12 +203,22 @@ function adminPageHtml() {
     .status.ok { color:#16703a; }
     .result { background:var(--soft); border:1px solid #ffd3c3; border-radius:8px; padding:16px; margin-top:16px; display:none; }
     .result strong { display:block; font-size:24px; margin-top:8px; word-break:break-all; }
+    .downloads-card { margin-top:16px; }
+    .downloads-head { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; margin-bottom:14px; }
+    .downloads-head h2 { margin:0 0 4px; font-size:21px; }
+    .download-links { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .download-item { border:1px solid var(--line); border-radius:8px; padding:14px; background:#fff; display:grid; gap:10px; }
+    .download-title { display:flex; justify-content:space-between; gap:10px; align-items:flex-start; }
+    .download-title strong { font-size:16px; }
+    .download-title span { display:block; margin-top:3px; font-size:13px; color:var(--muted); }
+    .download-url { color:var(--accent); font-weight:700; word-break:break-all; text-decoration:none; line-height:1.35; }
+    .download-url.missing { color:var(--muted); }
     table { width:100%; border-collapse:collapse; }
     th, td { border-bottom:1px solid var(--line); padding:11px 8px; text-align:left; vertical-align:top; font-size:14px; }
     th { color:var(--muted); font-size:13px; }
     .key { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight:800; }
     .muted { color:var(--muted); }
-    @media (max-width: 860px) { header, .grid, .row { grid-template-columns:1fr; display:grid; } .token { min-width:0; width:100%; } }
+    @media (max-width: 860px) { header, .grid, .row, .download-links { grid-template-columns:1fr; display:grid; } .token { min-width:0; width:100%; } .downloads-head { display:grid; } }
   </style>
 </head>
 <body>
@@ -295,6 +305,39 @@ function adminPageHtml() {
         </div>
       </section>
     </div>
+
+    <section class="card downloads-card">
+      <div class="downloads-head">
+        <div>
+          <h2>Link tải bản cài mới nhất</h2>
+          <p>Copy link Windows hoặc Mac OS để gửi khách hàng cài đặt.</p>
+        </div>
+        <button id="reloadDownloadsBtn" type="button">Cập nhật</button>
+      </div>
+      <div class="download-links">
+        <div class="download-item">
+          <div class="download-title">
+            <div>
+              <strong>Windows</strong>
+              <span id="windowsInstallerMeta">Đang tải...</span>
+            </div>
+            <button type="button" data-copy-installer="windows" disabled>Copy link</button>
+          </div>
+          <a id="windowsInstallerLink" class="download-url missing" target="_blank" rel="noopener">Đang tải link Windows...</a>
+        </div>
+        <div class="download-item">
+          <div class="download-title">
+            <div>
+              <strong>Mac OS</strong>
+              <span id="macInstallerMeta">Đang tải...</span>
+            </div>
+            <button type="button" data-copy-installer="mac" disabled>Copy link</button>
+          </div>
+          <a id="macInstallerLink" class="download-url missing" target="_blank" rel="noopener">Đang tải link Mac OS...</a>
+        </div>
+      </div>
+      <div id="downloadStatus" class="status"></div>
+    </section>
   </main>
 
   <script>
@@ -305,8 +348,40 @@ function adminPageHtml() {
     const result = $('#result');
     const rows = $('#licenseRows');
     let lastKey = '';
+    const installerLinks = { windows: null, mac: null };
+    const TOKEN_STORAGE_KEY = 'licenseAdminToken';
+    const TOKEN_COOKIE_NAME = 'licenseAdminToken';
+    const TOKEN_COOKIE_MAX_AGE = 60 * 60 * 24 * 3650;
+    const TOKEN_COOKIE_PATH = API_BASE || '/';
 
-    tokenInput.value = localStorage.getItem('licenseAdminToken') || '';
+    function getCookie(name) {
+      const prefix = name + '=';
+      return document.cookie
+        .split('; ')
+        .find(item => item.startsWith(prefix))
+        ?.slice(prefix.length) || '';
+    }
+
+    function saveAdminToken(value) {
+      const token = String(value || '').trim();
+      if (!token) {
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        document.cookie = TOKEN_COOKIE_NAME + '=; Max-Age=0; Path=' + TOKEN_COOKIE_PATH + '; SameSite=Lax';
+        return;
+      }
+      localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      document.cookie = TOKEN_COOKIE_NAME + '=' + encodeURIComponent(token) + '; Max-Age=' + TOKEN_COOKIE_MAX_AGE + '; Path=' + TOKEN_COOKIE_PATH + '; SameSite=Lax';
+    }
+
+    function loadSavedAdminToken() {
+      const stored = localStorage.getItem(TOKEN_STORAGE_KEY) || '';
+      if (stored.trim()) return stored;
+      const cookieToken = decodeURIComponent(getCookie(TOKEN_COOKIE_NAME));
+      if (cookieToken.trim()) saveAdminToken(cookieToken);
+      return cookieToken;
+    }
+
+    tokenInput.value = loadSavedAdminToken();
 
     function setStatus(text, type = '') {
       statusEl.textContent = text || '';
@@ -322,12 +397,58 @@ function adminPageHtml() {
       const res = await fetch(API_BASE + path, { ...options, headers });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || data.ok === false) throw new Error(data.error || 'Không gọi được API');
+      saveAdminToken(tokenInput.value);
       return data;
     }
 
     function formatDate(value) {
       if (!value) return 'Vĩnh viễn';
       return new Date(value).toLocaleDateString('vi-VN');
+    }
+
+    function installerMeta(file) {
+      if (!file) return 'Chưa có bản cài trên server';
+      const sizeMb = file.size ? Math.round(file.size / 1024 / 1024) : 0;
+      const sizeText = sizeMb ? ' | ' + sizeMb + ' MB' : '';
+      return 'Phiên bản ' + (file.version || 'mới nhất') + sizeText;
+    }
+
+    function renderInstaller(platform, file) {
+      const link = $('#' + platform + 'InstallerLink');
+      const meta = $('#' + platform + 'InstallerMeta');
+      const copyBtn = document.querySelector('[data-copy-installer="' + platform + '"]');
+      installerLinks[platform] = file?.url || null;
+      meta.textContent = installerMeta(file);
+      copyBtn.disabled = !installerLinks[platform];
+      if (installerLinks[platform]) {
+        link.href = installerLinks[platform];
+        link.textContent = installerLinks[platform];
+        link.classList.remove('missing');
+      } else {
+        link.removeAttribute('href');
+        link.textContent = platform === 'windows' ? 'Chưa có link Windows' : 'Chưa có link Mac OS';
+        link.classList.add('missing');
+      }
+    }
+
+    async function loadInstallerLinks() {
+      const downloadStatus = $('#downloadStatus');
+      downloadStatus.textContent = 'Đang tải link bản cài mới nhất...';
+      downloadStatus.className = 'status';
+      try {
+        const res = await fetch('/api/downloads/latest', { cache: 'no-store' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || 'Không tải được link bản cài');
+        renderInstaller('windows', data.platforms?.windows || null);
+        renderInstaller('mac', data.platforms?.mac || null);
+        downloadStatus.textContent = 'Đã cập nhật link tải mới nhất.';
+        downloadStatus.className = 'status ok';
+      } catch (e) {
+        renderInstaller('windows', null);
+        renderInstaller('mac', null);
+        downloadStatus.textContent = e.message;
+        downloadStatus.className = 'status err';
+      }
     }
 
     async function loadConfig() {
@@ -359,10 +480,25 @@ function adminPageHtml() {
     });
 
     $('#saveTokenBtn').addEventListener('click', async () => {
-      localStorage.setItem('licenseAdminToken', tokenInput.value.trim());
-      setStatus('Đã lưu token trên trình duyệt này.', 'ok');
-      try { await loadConfig(); } catch {}
-      loadLicenses();
+      const token = tokenInput.value.trim();
+      if (!token) {
+        saveAdminToken('');
+        rows.innerHTML = '<tr><td colspan="4" class="muted">Nhập token admin để xem danh sách.</td></tr>';
+        setStatus('Đã xóa token đã lưu trên trình duyệt này.', 'ok');
+        return;
+      }
+      setStatus('Đang kiểm tra token...');
+      $('#saveTokenBtn').disabled = true;
+      try {
+        await loadConfig();
+        saveAdminToken(token);
+        setStatus('Đã lưu token vĩnh viễn trên trình duyệt này.', 'ok');
+        loadLicenses();
+      } catch (e) {
+        setStatus(e.message, 'err');
+      } finally {
+        $('#saveTokenBtn').disabled = false;
+      }
     });
 
     $('#licenseForm').addEventListener('submit', async (event) => {
@@ -399,6 +535,20 @@ function adminPageHtml() {
     });
 
     $('#reloadBtn').addEventListener('click', loadLicenses);
+    $('#reloadDownloadsBtn').addEventListener('click', loadInstallerLinks);
+    document.querySelectorAll('[data-copy-installer]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const platform = btn.dataset.copyInstaller;
+        const url = installerLinks[platform];
+        if (!url) return;
+        await navigator.clipboard.writeText(url);
+        const label = platform === 'windows' ? 'Windows' : 'Mac OS';
+        const downloadStatus = $('#downloadStatus');
+        downloadStatus.textContent = 'Đã copy link tải ' + label + '.';
+        downloadStatus.className = 'status ok';
+      });
+    });
+    loadInstallerLinks();
     if (tokenInput.value.trim()) {
       loadConfig().catch(() => {});
       loadLicenses();

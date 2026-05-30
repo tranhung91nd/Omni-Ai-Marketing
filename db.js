@@ -45,6 +45,9 @@ try { db.exec('ALTER TABLE fb_pages ADD COLUMN userAccessToken TEXT'); } catch {
 try { db.exec('ALTER TABLE fb_pages ADD COLUMN instagramId TEXT'); } catch {}
 try { db.exec('ALTER TABLE fb_pages ADD COLUMN reauthRequired INTEGER DEFAULT 0'); } catch {}
 try { db.exec('ALTER TABLE fb_pages ADD COLUMN lastError TEXT'); } catch {}
+try { db.exec('ALTER TABLE fb_pages ADD COLUMN openingMessage TEXT'); } catch {}
+try { db.exec('ALTER TABLE fb_pages ADD COLUMN openingAutoSend INTEGER DEFAULT 0'); } catch {}
+try { db.exec('ALTER TABLE fb_pages ADD COLUMN openingOnlyFirstMsg INTEGER DEFAULT 1'); } catch {}
 try { db.exec('ALTER TABLE fb_messages ADD COLUMN status TEXT'); } catch {}  // sent / delivered / read / failed
 try { db.exec('ALTER TABLE fb_messages ADD COLUMN sourceFromChatwoot INTEGER DEFAULT 0'); } catch {}  // 1 = gửi từ app này, 0 = gửi từ FB Page Mobile/Web
 // ═══ FANPAGE FACEBOOK ═══
@@ -60,6 +63,9 @@ CREATE TABLE IF NOT EXISTS fb_pages (
   active INTEGER DEFAULT 1,
   reauthRequired INTEGER DEFAULT 0,
   lastError TEXT,
+  openingMessage TEXT,
+  openingAutoSend INTEGER DEFAULT 0,
+  openingOnlyFirstMsg INTEGER DEFAULT 1,
   createdAt INTEGER DEFAULT (unixepoch()),
   updatedAt INTEGER DEFAULT (unixepoch())
 );
@@ -128,6 +134,15 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 CREATE INDEX IF NOT EXISTS idx_msgs_thread ON messages(ownId, threadId, ts DESC);
 CREATE INDEX IF NOT EXISTS idx_msgs_search ON messages(ownId, content);
+
+CREATE TABLE IF NOT EXISTS pinned_messages (
+  ownId TEXT NOT NULL,
+  threadId TEXT NOT NULL,
+  msgId TEXT NOT NULL,
+  pinnedAt INTEGER DEFAULT (unixepoch()),
+  PRIMARY KEY (ownId, threadId, msgId)
+);
+CREATE INDEX IF NOT EXISTS idx_pinned_messages_thread ON pinned_messages(ownId, threadId, pinnedAt DESC);
 
 CREATE TABLE IF NOT EXISTS templates (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -456,7 +471,17 @@ const stmts = {
   insertMsg: db.prepare(`INSERT OR IGNORE INTO messages (msgId, ownId, threadId, threadType, fromId, fromName, content, type, meta, ts, isSelf)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`),
   listMsgs: db.prepare(`SELECT * FROM messages WHERE ownId=? AND threadId=? ORDER BY ts DESC LIMIT ? OFFSET ?`),
+  getMsgInThread: db.prepare(`SELECT * FROM messages WHERE ownId=? AND threadId=? AND msgId=?`),
   searchMsgs: db.prepare(`SELECT * FROM messages WHERE ownId=? AND content LIKE ? ORDER BY ts DESC LIMIT 100`),
+  pinMessage: db.prepare(`INSERT OR REPLACE INTO pinned_messages (ownId, threadId, msgId, pinnedAt) VALUES (?, ?, ?, unixepoch())`),
+  unpinMessage: db.prepare(`DELETE FROM pinned_messages WHERE ownId=? AND threadId=? AND msgId=?`),
+  listPinnedMessageIds: db.prepare(`SELECT msgId FROM pinned_messages WHERE ownId=? AND threadId=?`),
+  listPinnedMessages: db.prepare(`SELECT m.*, p.pinnedAt
+    FROM pinned_messages p
+    JOIN messages m ON m.ownId=p.ownId AND m.threadId=p.threadId AND m.msgId=p.msgId
+    WHERE p.ownId=? AND p.threadId=?
+    ORDER BY p.pinnedAt DESC LIMIT ?`),
+  removePinnedThreadMessages: db.prepare(`DELETE FROM pinned_messages WHERE ownId=? AND threadId=?`),
 
   addTemplate: db.prepare(`INSERT INTO templates (ownId, name, content) VALUES (?, ?, ?)`),
   listTemplates: db.prepare(`SELECT * FROM templates WHERE ownId IS NULL OR ownId=? ORDER BY id DESC`),
@@ -535,7 +560,7 @@ const stmts = {
   threadsByLabelName: db.prepare(`SELECT id FROM threads WHERE ownId=? AND labels LIKE '%' || ? || '%'`),
 
   // ═══ FANPAGE STATEMENTS ═══
-  listFbPages: db.prepare(`SELECT pageId, name, avatar, instagramId, reauthRequired, lastError, ownerOwnId, active, createdAt FROM fb_pages WHERE active=1 ORDER BY createdAt DESC`),
+  listFbPages: db.prepare(`SELECT pageId, name, avatar, instagramId, reauthRequired, lastError, ownerOwnId, active, openingMessage, openingAutoSend, openingOnlyFirstMsg, createdAt FROM fb_pages WHERE active=1 ORDER BY createdAt DESC`),
   getFbPage: db.prepare(`SELECT * FROM fb_pages WHERE pageId=?`),
   upsertFbPage: db.prepare(`INSERT INTO fb_pages (pageId, name, avatar, accessToken, userAccessToken, instagramId, ownerOwnId)
     VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -550,6 +575,7 @@ const stmts = {
       updatedAt=unixepoch()`),
   deactivateFbPage: db.prepare(`UPDATE fb_pages SET active=0 WHERE pageId=?`),
   setFbPageReauth: db.prepare(`UPDATE fb_pages SET reauthRequired=?, lastError=? WHERE pageId=?`),
+  updateFbOpeningMessage: db.prepare(`UPDATE fb_pages SET openingMessage=?, openingAutoSend=?, openingOnlyFirstMsg=?, updatedAt=unixepoch() WHERE pageId=?`),
   updateFbMessageStatus: db.prepare(`UPDATE fb_messages SET status=? WHERE msgId=? AND pageId=?`),
 
   listFbConvos: db.prepare(`SELECT * FROM fb_conversations WHERE pageId=? ORDER BY lastMsgAt DESC LIMIT ?`),

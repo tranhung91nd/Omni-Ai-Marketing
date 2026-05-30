@@ -18,6 +18,7 @@ const ZALO_AGENT_BIN = process.env.ZALO_AGENT_BIN || 'zalo-agent';
 const ROOT_REDIRECT = process.env.ROOT_REDIRECT || '/chat';
 const LICENSE_ADMIN_ROUTE = process.env.LICENSE_ADMIN_ROUTE || '/license-admin';
 const LICENSE_ADMIN_TARGET = process.env.LICENSE_ADMIN_TARGET || '/license-api/admin';
+const DOWNLOADS_DIR = path.join(__dirname, 'public', 'downloads', 'zalo-agent');
 
 app.use(express.json({ limit: '20mb' }));
 app.use(express.urlencoded({ extended: true, limit: '20mb' }));
@@ -27,6 +28,22 @@ if (LICENSE_ADMIN_ROUTE) {
 }
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 app.get('/api/health', (_req, res) => res.json({ ok: true, version: require('./package.json').version }));
+app.get('/api/downloads/latest', (req, res) => {
+  try {
+    const files = listInstallerFiles(req);
+    res.json({
+      ok: true,
+      latest: files[0] || null,
+      platforms: {
+        windows: files.find(f => f.platform === 'windows') || null,
+        mac: files.find(f => f.platform === 'mac') || null,
+      },
+      files,
+    });
+  } catch (e) {
+    res.json({ ok: false, error: e.message });
+  }
+});
 license.registerRoutes(app);
 desktopUpdate.registerRoutes(app);
 app.use(license.middleware);
@@ -61,6 +78,71 @@ ZM.setSendGuard(async () => {
   const status = await license.getStatus({ refresh: false });
   return Boolean(status.active);
 });
+
+function parseVersionFromInstaller(name) {
+  const m = name.match(/HC-Zalo-Agent-(\d+\.\d+\.\d+)/i);
+  return m ? m[1] : '0.0.0';
+}
+
+function compareVersions(a, b) {
+  const aa = String(a || '0.0.0').split('.').map(n => Number(n) || 0);
+  const bb = String(b || '0.0.0').split('.').map(n => Number(n) || 0);
+  for (let i = 0; i < Math.max(aa.length, bb.length); i++) {
+    const diff = (bb[i] || 0) - (aa[i] || 0);
+    if (diff) return diff;
+  }
+  return 0;
+}
+
+function installerPlatform(name) {
+  if (/Setup\.exe$/i.test(name) || /\.exe$/i.test(name)) return 'windows';
+  if (/\.(dmg|pkg|zip)$/i.test(name) || /-Mac-/i.test(name)) return 'mac';
+  return 'other';
+}
+
+function installerPriority(name) {
+  if (/Setup\.exe$/i.test(name)) return 0;
+  if (/\.dmg$/i.test(name)) return 1;
+  if (/\.pkg$/i.test(name)) return 2;
+  if (/\.zip$/i.test(name)) return 3;
+  return 9;
+}
+
+function absoluteDownloadUrl(req, fileName) {
+  const relativeUrl = `/downloads/zalo-agent/${encodeURIComponent(fileName)}`;
+  const proto = req.get('x-forwarded-proto') || req.protocol || 'http';
+  const host = req.get('x-forwarded-host') || req.get('host');
+  return host ? `${proto}://${host}${relativeUrl}` : relativeUrl;
+}
+
+function listInstallerFiles(req) {
+  if (!fs.existsSync(DOWNLOADS_DIR)) return [];
+  return fs.readdirSync(DOWNLOADS_DIR, { withFileTypes: true })
+    .filter(d => d.isFile())
+    .map(d => d.name)
+    .filter(name => /^HC-Zalo-Agent-/i.test(name))
+    .filter(name => /\.(exe|dmg|pkg|zip)$/i.test(name))
+    .map(name => {
+      const stat = fs.statSync(path.join(DOWNLOADS_DIR, name));
+      const version = parseVersionFromInstaller(name);
+      return {
+        name,
+        version,
+        platform: installerPlatform(name),
+        url: absoluteDownloadUrl(req, name),
+        path: `/downloads/zalo-agent/${encodeURIComponent(name)}`,
+        size: stat.size,
+        updatedAt: stat.mtime.toISOString(),
+      };
+    })
+    .sort((a, b) => {
+      const versionDiff = compareVersions(a.version, b.version);
+      if (versionDiff) return versionDiff;
+      const priorityDiff = installerPriority(a.name) - installerPriority(b.name);
+      if (priorityDiff) return priorityDiff;
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+}
 
 // AI caller cho auto-reply per-thread: dùng provider đã chọn với bối cảnh + product KB
 ZM.setAiCaller(async ({ ownId, threadId, threadType, triggerContent, triggerFromName, triggerMsgType, triggerRawContent }) => {
@@ -348,8 +430,14 @@ app.post('/api/chat/sync-history/:ownId/:threadId', async (req, res) => {
 app.get('/api/chat/messages/:ownId/:threadId', (req, res) => {
   const limit = parseInt(req.query.limit || '50');
   const offset = parseInt(req.query.offset || '0');
-  const rows = stmts.listMsgs.all(req.params.ownId, req.params.threadId, limit, offset);
-  res.json({ ok: true, data: rows.reverse() });
+  const ownId = req.params.ownId;
+  const threadId = String(req.params.threadId);
+  const pinnedIds = new Set(stmts.listPinnedMessageIds.all(ownId, threadId).map(r => r.msgId));
+  const rows = stmts.listMsgs.all(ownId, threadId, limit, offset)
+    .map(r => ({ ...r, pinned: pinnedIds.has(r.msgId) ? 1 : 0 }));
+  const pinned = stmts.listPinnedMessages.all(ownId, threadId, 5)
+    .map(r => ({ ...r, pinned: 1 }));
+  res.json({ ok: true, data: rows.reverse(), pinned });
 });
 
 app.post('/api/chat/mark-read/:ownId/:threadId', (req, res) => {
@@ -1614,29 +1702,22 @@ async function aiViaAnthropicApi({ sys, messages, model, apiKey, purpose = 'chat
 const FB_VERIFY_TOKEN = process.env.FB_VERIFY_TOKEN || '';
 const FB_GRAPH_API = 'https://graph.facebook.com/v21.0';
 const FB_OAUTH_URL = 'https://www.facebook.com/v21.0/dialog/oauth';
-// Scope đầy đủ kiểu Pancake — phục vụ cho cả messaging + đăng bài + ads + leads sau này
+// Chỉ xin nhóm quyền tối thiểu cho login Fanpage/Messenger.
 const FB_SCOPES = [
-  'public_profile',
-  'email',
   'pages_show_list',
-  'pages_messaging',
-  'pages_messaging_subscriptions',
-  'pages_read_engagement',
-  'pages_read_user_content',
   'pages_manage_metadata',
-  'pages_manage_posts',
-  'pages_manage_engagement',
-  'pages_utility_messaging',
-  'business_management',
-  'leads_retrieval',
-  'ads_read',
+  'pages_read_engagement',
+  'pages_messaging',
 ].join(',');
 
 function getFbAppConfig() {
-  const id = stmts.getSetting.get('fb.appId')?.value || '';
-  const secret = stmts.getSetting.get('fb.appSecret')?.value || '';
-  const redirectUri = stmts.getSetting.get('fb.redirectUri')?.value || 'https://ai.hc-agency.online/api/fb/oauth-callback';
-  return { id, secret, redirectUri };
+  const envId = process.env.FB_APP_ID || process.env.FACEBOOK_APP_ID || '';
+  const envSecret = process.env.FB_APP_SECRET || process.env.FACEBOOK_APP_SECRET || '';
+  const envRedirectUri = process.env.FB_REDIRECT_URI || process.env.FACEBOOK_REDIRECT_URI || '';
+  const id = envId || stmts.getSetting.get('fb.appId')?.value || '';
+  const secret = envSecret || stmts.getSetting.get('fb.appSecret')?.value || '';
+  const redirectUri = envRedirectUri || stmts.getSetting.get('fb.redirectUri')?.value || 'https://ai.hc-agency.online/api/fb/oauth-callback';
+  return { id, secret, redirectUri, managedByEnv: !!(envId || envSecret || envRedirectUri) };
 }
 
 // Lưu app config
@@ -1656,20 +1737,61 @@ app.get('/api/fb/app-config', (req, res) => {
       appId: cfg.id,
       appSecretSet: !!cfg.secret,
       redirectUri: cfg.redirectUri,
+      configured: !!(cfg.id && cfg.secret),
+      managedByEnv: cfg.managedByEnv,
     },
   });
 });
+
+async function exchangeLongLivedFbUserToken(shortToken, cfg) {
+  const params = new URLSearchParams({
+    grant_type: 'fb_exchange_token',
+    client_id: cfg.id,
+    client_secret: cfg.secret,
+    fb_exchange_token: shortToken,
+  });
+  const longUrl = `${FB_GRAPH_API}/oauth/access_token?${params.toString()}`;
+  const r = await fetch(longUrl);
+  const data = await r.json();
+  if (data.error) throw new Error(`Không đổi được token dài hạn: ${data.error.message}`);
+  if (!data.access_token) throw new Error('Meta không trả về token dài hạn');
+  return data.access_token;
+}
+
+async function getFbPagesFromUserToken(userToken) {
+  const params = new URLSearchParams({
+    fields: 'id,name,access_token,picture,instagram_business_account',
+    limit: '100',
+    access_token: userToken,
+  });
+  const pagesUrl = `${FB_GRAPH_API}/me/accounts?${params.toString()}`;
+  const r = await fetch(pagesUrl);
+  const pagesData = await r.json();
+  if (pagesData.error) throw new Error(pagesData.error.message);
+  return (pagesData.data || []).map(p => ({
+    pageId: p.id,
+    name: p.name,
+    avatar: p.picture?.data?.url || '',
+    accessToken: p.access_token,
+    userToken,
+    instagramId: p.instagram_business_account?.id || null,
+  }));
+}
+
+function saveFbOAuthSession(pages) {
+  const sessionId = 'fb-' + Math.random().toString(36).slice(2, 12);
+  stmts.setSetting.run('fb.oauthSession.' + sessionId, JSON.stringify({ pages, ts: Date.now() }));
+  return sessionId;
+}
 
 // Bắt đầu OAuth: redirect user đến Facebook để login
 app.get('/api/fb/oauth-start', (req, res) => {
   const cfg = getFbAppConfig();
   if (!cfg.id || !cfg.secret) {
     return res.status(400).send(`<!DOCTYPE html><html><body style="font-family:system-ui;padding:40px;text-align:center;background:#f5f5f5">
-      <h2 style="color:#dc2626">⚠️ Chưa cấu hình Facebook App</h2>
+      <h2 style="color:#dc2626">Facebook Login chưa sẵn sàng</h2>
       <p style="font-size:14px;color:#444;max-width:480px;margin:20px auto">
-        Quay lại tab app chính → mở phần <b>"⚙️ Cấu hình Facebook App (lần đầu)"</b> trong modal kết nối Fanpage<br>
-        → nhập <b>App ID</b> + <b>App Secret</b> → bấm <b>Lưu cấu hình</b><br>
-        → Đóng tab này → bấm <b>Đăng nhập Facebook</b> lại
+        Nền tảng chưa được cấu hình Meta App ở server. Vui lòng liên hệ quản trị hệ thống để bật Facebook Login.
       </p>
       <button onclick="window.close()" style="padding:10px 20px;background:#1877F2;color:white;border:0;border-radius:6px;cursor:pointer">Đóng tab này</button>
     </body></html>`);
@@ -1680,7 +1802,7 @@ app.get('/api/fb/oauth-start', (req, res) => {
   const url = `${FB_OAUTH_URL}?client_id=${cfg.id}`
     + `&redirect_uri=${encodeURIComponent(cfg.redirectUri)}`
     + `&state=${state}`
-    + `&scope=${FB_SCOPES}`
+    + `&scope=${encodeURIComponent(FB_SCOPES)}`
     + `&response_type=code`
     + `&auth_type=rerequest`;
   res.redirect(url);
@@ -1706,30 +1828,12 @@ app.get('/api/fb/oauth-callback', async (req, res) => {
     const t1 = await r1.json();
     if (t1.error) throw new Error(t1.error.message);
 
-    // 2. Đổi sang long-lived user token (60 ngày)
-    const longUrl = `${FB_GRAPH_API}/oauth/access_token?grant_type=fb_exchange_token&client_id=${cfg.id}&client_secret=${cfg.secret}&fb_exchange_token=${t1.access_token}`;
-    const r2 = await fetch(longUrl);
-    const t2 = await r2.json();
-    const userToken = t2.access_token || t1.access_token;
-
-    // 3. Lấy danh sách pages — fetch thêm instagram_business_account (theo Chatwoot pattern)
-    const pagesUrl = `${FB_GRAPH_API}/me/accounts?fields=id,name,access_token,picture,instagram_business_account&limit=100&access_token=${userToken}`;
-    const r3 = await fetch(pagesUrl);
-    const pagesData = await r3.json();
-    if (pagesData.error) throw new Error(pagesData.error.message);
-
-    const pages = (pagesData.data || []).map(p => ({
-      pageId: p.id,
-      name: p.name,
-      avatar: p.picture?.data?.url || '',
-      accessToken: p.access_token,
-      userToken,
-      instagramId: p.instagram_business_account?.id || null,
-    }));
+    // 2. Đổi sang long-lived user token (60 ngày), rồi lấy Page access token từ /me/accounts.
+    const userToken = await exchangeLongLivedFbUserToken(t1.access_token, cfg);
+    const pages = await getFbPagesFromUserToken(userToken);
 
     // Lưu tạm vào session để frontend lấy
-    const sessionId = 'fb-' + Math.random().toString(36).slice(2, 12);
-    stmts.setSetting.run('fb.oauthSession.' + sessionId, JSON.stringify({ pages, ts: Date.now() }));
+    const sessionId = saveFbOAuthSession(pages);
 
     // Trả về HTML đóng popup + gửi message cho parent
     res.send(`<!DOCTYPE html><html><body>
@@ -1761,27 +1865,14 @@ app.post('/api/fb/quick-connect', async (req, res) => {
   const { userToken } = req.body || {};
   if (!userToken) return res.json({ ok: false, error: 'Thiếu User Access Token' });
   try {
-    // Fetch list pages user quản lý (kèm avatar + IG biz account)
-    const r = await fetch(`${FB_GRAPH_API}/me/accounts?fields=id,name,access_token,picture,instagram_business_account&limit=100&access_token=${userToken}`);
-    const data = await r.json();
-    if (data.error) return res.json({ ok: false, error: `Facebook: ${data.error.message}` });
-
-    const pages = (data.data || []).map(p => ({
-      pageId: p.id,
-      name: p.name,
-      avatar: p.picture?.data?.url || '',
-      accessToken: p.access_token,
-      userToken,
-      instagramId: p.instagram_business_account?.id || null,
-    }));
+    const pages = await getFbPagesFromUserToken(userToken);
 
     if (!pages.length) {
       return res.json({ ok: false, error: 'Token hợp lệ nhưng không tìm thấy Fanpage nào. Token cần có quyền pages_show_list + pages_messaging.' });
     }
 
     // Lưu session để frontend chọn pages
-    const sessionId = 'fb-' + Math.random().toString(36).slice(2, 12);
-    stmts.setSetting.run('fb.oauthSession.' + sessionId, JSON.stringify({ pages, ts: Date.now() }));
+    const sessionId = saveFbOAuthSession(pages);
     res.json({ ok: true, sessionId, pageCount: pages.length });
   } catch (e) { res.json({ ok: false, error: e.message }); }
 });
@@ -1905,9 +1996,15 @@ async function handleFbMessagingEvent(pageId, event) {
     wsBroadcast({ kind: 'fb-message', pageId, conversationId, msgId, content, isFromPage, ts, customerName, isEcho });
     console.log(`[fb-webhook] msg page=${pageId} ${isEcho ? '[ECHO]' : ''} from=${senderPsid} content="${content.slice(0, 60)}"`);
 
-    // AI Auto-reply nếu là tin từ KHÁCH (không phải page) + có nội dung text
+    // Tin mở đầu ưu tiên trước AI để khách không nhận 2 tin tự động cùng lúc.
     if (!isFromPage && content && content.length > 1) {
-      tryFbAutoReply(page, conversationId, customerPsid, customerName, content).catch(e => console.log('[fb-autoreply] err:', e.message));
+      const opened = await tryFbOpeningMessage(page, conversationId, customerPsid, customerName).catch(e => {
+        console.log('[fb-opening] err:', e.message);
+        return false;
+      });
+      if (!opened) {
+        tryFbAutoReply(page, conversationId, customerPsid, customerName, content).catch(e => console.log('[fb-autoreply] err:', e.message));
+      }
     }
     return;
   }
@@ -1938,9 +2035,55 @@ async function handleFbMessagingEvent(pageId, event) {
   }
 }
 
+// ═══ TIN NHẮN MỞ ĐẦU cho Fanpage ═══
+async function tryFbOpeningMessage(page, conversationId, customerPsid, customerName) {
+  const pageId = page.pageId;
+  const message = String(page.openingMessage || '').trim();
+  if (!message || !page.openingAutoSend) return false;
+
+  if (page.openingOnlyFirstMsg !== 0) {
+    const incoming = db.prepare(`SELECT COUNT(*) as cnt FROM fb_messages WHERE conversationId=? AND isFromPage=0`).get(conversationId);
+    if ((incoming?.cnt || 0) !== 1) return false;
+  }
+
+  const sentSame = db.prepare(`SELECT COUNT(*) as cnt FROM fb_messages WHERE conversationId=? AND isFromPage=1 AND content=?`).get(conversationId, message);
+  if ((sentSame?.cnt || 0) > 0) return false;
+
+  try {
+    const r = await fetch(`${FB_GRAPH_API}/${pageId}/messages?access_token=${page.accessToken}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        recipient: { id: customerPsid },
+        messaging_type: 'RESPONSE',
+        message: { text: message },
+      }),
+    });
+    const data = await r.json();
+    if (data.error) {
+      if (data.error.code === 190 || /OAuth/i.test(data.error.message || '')) {
+        stmts.setFbPageReauth.run(1, data.error.message, pageId);
+      }
+      console.log(`[fb-opening] send err: ${data.error.message}`);
+      return false;
+    }
+    const ts = Date.now();
+    const msgId = data.message_id || `fb-opening-${ts}`;
+    stmts.insertFbMessage.run(msgId, pageId, conversationId, pageId, 'Page', customerPsid, message, null, 1, 0, ts, 1, 'sent');
+    stmts.upsertFbConvo.run(conversationId, pageId, customerPsid, customerName, null, message.slice(0, 200), ts);
+    wsBroadcast({ kind: 'fb-message', pageId, conversationId, msgId, content: message, isFromPage: true, ts, customerName, isEcho: false });
+    console.log(`[fb-opening] sent page=${pageId} convo=${conversationId}`);
+    return true;
+  } catch (e) {
+    console.log('[fb-opening] send exception:', e.message);
+    return false;
+  }
+}
+
 // ═══ AI AUTO-REPLY cho Fanpage ═══
 async function tryFbAutoReply(page, conversationId, customerPsid, customerName, triggerContent) {
   const pageId = page.pageId;
+  const convo = stmts.getFbConvo.get(conversationId);
   // Đọc setting auto-reply cho conversation này (lưu trong auto_reply_thread với ownId=pageId)
   const setting = stmts.getAutoReplyThread.get(pageId, conversationId);
   if (!setting || !setting.enabled) return;
@@ -2045,6 +2188,23 @@ Viết câu trả lời ngắn cho tin trên.`;
 // API: list connected pages
 app.get('/api/fb/pages', (req, res) => {
   res.json({ ok: true, data: stmts.listFbPages.all() });
+});
+
+app.post('/api/fb/pages/:pageId/opening-message', (req, res) => {
+  const pageId = req.params.pageId;
+  const page = stmts.getFbPage.get(pageId);
+  if (!page) return res.json({ ok: false, error: 'Không tìm thấy Fanpage' });
+
+  const message = String(req.body?.message || '').trim();
+  const autoSend = req.body?.autoSend ? 1 : 0;
+  const onlyFirstMsg = req.body?.onlyFirstMsg === false ? 0 : 1;
+  if (autoSend && !message) return res.json({ ok: false, error: 'Cần nhập tin nhắn mở đầu trước khi bật tự gửi' });
+
+  stmts.updateFbOpeningMessage.run(message, autoSend, onlyFirstMsg, pageId);
+  res.json({
+    ok: true,
+    data: { pageId, openingMessage: message, openingAutoSend: autoSend, openingOnlyFirstMsg: onlyFirstMsg },
+  });
 });
 
 // API: connect new page (manual token)
@@ -2256,9 +2416,21 @@ app.post('/api/fb/conversations/:conversationId/send', async (req, res) => {
 
   // Note nội bộ — không gửi ra FB
   if (isNote) {
-    const noteId = 'note-' + Date.now().toString(36);
-    stmts.insertFbMessage.run(noteId, convo.pageId, conversationId, null, 'Note', null, content, null, 0, 1, Date.now(), 1, 'sent');
-    return res.json({ ok: true, isNote: true });
+    const ts = Date.now();
+    const noteId = 'note-' + ts.toString(36);
+    stmts.insertFbMessage.run(noteId, convo.pageId, conversationId, null, 'Note', null, content, null, 0, 1, ts, 1, 'sent');
+    wsBroadcast({
+      kind: 'fb-message',
+      pageId: convo.pageId,
+      conversationId,
+      msgId: noteId,
+      content,
+      isFromPage: false,
+      isNote: true,
+      ts,
+      customerName: convo.customerName,
+    });
+    return res.json({ ok: true, isNote: true, msgId: noteId });
   }
 
   // Theo Chatwoot: dùng messaging_type=RESPONSE trong 24h, MESSAGE_TAG nếu > 24h
@@ -2293,6 +2465,19 @@ app.post('/api/fb/conversations/:conversationId/send', async (req, res) => {
     // sourceFromChatwoot=1 → tin gửi từ app này (sau này sẽ nhận echo từ webhook và skip duplicate)
     stmts.insertFbMessage.run(data.message_id, convo.pageId, conversationId, convo.pageId, 'Page', convo.customerPsid, content, null, 1, 0, ts, 1, 'sent');
     stmts.upsertFbConvo.run(conversationId, convo.pageId, convo.customerPsid, convo.customerName, convo.customerAvatar, content.slice(0, 200), ts);
+    wsBroadcast({
+      kind: 'fb-message',
+      pageId: convo.pageId,
+      conversationId,
+      msgId: data.message_id,
+      content,
+      isFromPage: true,
+      isNote: false,
+      ts,
+      customerName: convo.customerName,
+      status: 'sent',
+      isEcho: false,
+    });
     res.json({ ok: true, msgId: data.message_id });
   } catch (e) { res.json({ ok: false, error: e.message }); }
 });
@@ -2942,6 +3127,23 @@ app.post('/api/chat/thread-pin', async (req, res) => {
   } catch (e) { res.json({ ok: false, error: e.message }); }
 });
 
+app.post('/api/chat/message-pin', (req, res) => {
+  const { ownId, threadId, msgId, pinned } = req.body || {};
+  if (!ownId || !threadId || !msgId) return res.json({ ok: false, error: 'Thiếu tham số' });
+  try {
+    const tid = String(threadId);
+    const mid = String(msgId);
+    if (pinned) {
+      const msg = stmts.getMsgInThread.get(ownId, tid, mid);
+      if (!msg) return res.json({ ok: false, error: 'Không tìm thấy tin nhắn để ghim' });
+      stmts.pinMessage.run(ownId, tid, mid);
+    } else {
+      stmts.unpinMessage.run(ownId, tid, mid);
+    }
+    res.json({ ok: true });
+  } catch (e) { res.json({ ok: false, error: e.message }); }
+});
+
 app.post('/api/chat/thread-unread', async (req, res) => {
   const { ownId, threadId, threadType, unread } = req.body;
   if (!ownId || !threadId) return res.json({ ok: false, error: 'Thiếu tham số' });
@@ -2956,6 +3158,7 @@ app.post('/api/chat/thread-remove', (req, res) => {
   const { ownId, threadId } = req.body || {};
   if (!ownId || !threadId) return res.json({ ok: false, error: 'Thiếu tham số' });
   try {
+    stmts.removePinnedThreadMessages.run(ownId, String(threadId));
     db.prepare('DELETE FROM messages WHERE ownId=? AND threadId=?').run(ownId, String(threadId));
     db.prepare('DELETE FROM threads WHERE ownId=? AND id=?').run(ownId, String(threadId));
     res.json({ ok: true });
